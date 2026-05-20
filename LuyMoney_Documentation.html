@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: 'Khmer OS', Arial, sans-serif; font-size: 12pt; margin: 2cm; color: #000; }
+  h1 { font-size: 18pt; color: #1F3864; border-bottom: 2px solid #C9A227; padding-bottom: 5px; margin-top: 30px; }
+  h2 { font-size: 14pt; color: #2F5496; margin-top: 20px; }
+  h3 { font-size: 12pt; color: #375623; margin-top: 15px; }
+  .title { font-size: 28pt; font-weight: bold; text-align: center; color: #1F3864; margin-bottom: 5px; }
+  .subtitle { font-size: 16pt; text-align: center; color: #666; margin-bottom: 30px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  th { background: #1F3864; color: white; padding: 8px; text-align: left; }
+  td { border: 1px solid #ccc; padding: 6px 10px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f5f5f5; }
+  .label { font-weight: bold; color: #1F3864; }
+  .code { font-family: Consolas, monospace; background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 10pt; }
+  .note { background: #FFF3CD; border-left: 4px solid #C9A227; padding: 8px 12px; margin: 8px 0; }
+  .folder { color: #C9A227; font-weight: bold; }
+  p { margin: 5px 0; line-height: 1.6; }
+  .toc a { text-decoration: none; color: #1F3864; }
+  .toc li { margin: 4px 0; }
+  @page { margin: 2cm; }
+</style>
+</head>
+<body>
+
+<div class="title">Technical Documentation</div>
+<div class="subtitle">Project: LuyMoney &mdash; Flutter Mobile Application</div>
+<hr>
+<p style="text-align:center">Version 1.0 &nbsp;|&nbsp; Date: May 2026 &nbsp;|&nbsp; Platform: Android, iOS, Web</p>
+<hr>
+
+<!-- TABLE OF CONTENTS -->
+<h1>តារាងមាតិកា (Table of Contents)</h1>
+<ol class="toc">
+  <li><a href="#intro">Introduction (សេចក្ដីផ្ដើម)</a></li>
+  <li><a href="#arch">Architecture Overview</a></li>
+  <li><a href="#root">Root Files (lib/)</a></li>
+  <li><a href="#routes">Routes (lib/app/routes/)</a></li>
+  <li><a href="#services">Services (lib/app/services/)</a></li>
+  <li><a href="#models">Data Models (lib/app/data/models/)</a></li>
+  <li><a href="#domain">Domain Layer (lib/app/domain/)</a></li>
+  <li><a href="#providers">Data Providers (lib/app/data/providers/)</a></li>
+  <li><a href="#modules">Modules (lib/app/modules/)</a></li>
+  <li><a href="#shared">Shared Layer (lib/app/shared/)</a></li>
+  <li><a href="#firebase">Firebase / Firestore Structure</a></li>
+  <li><a href="#android">Android Configuration</a></li>
+  <li><a href="#deps">Key Dependencies</a></li>
+</ol>
+
+<!-- 1. INTRODUCTION -->
+<h1 id="intro">1. Introduction (សេចក្ដីផ្ដើម)</h1>
+<p><span class="label">Project Name:</span> LuyMoney (លុយម៉ាណេ)</p>
+<p><span class="label">Platform:</span> Android, iOS, Web</p>
+<p><span class="label">Framework:</span> Flutter (Dart)</p>
+<p><span class="label">Backend:</span> Firebase (Auth, Firestore, Storage, Messaging, Analytics, Crashlytics, App Check)</p>
+<p><span class="label">State Management:</span> GetX (MVC Pattern)</p>
+
+<p>Project LuyMoney គឺជា Mobile Application សម្រាប់ Financial Education។ Application ផ្ដល់ Videos, Articles, Chat Support, Subscription Management, Admin Panel, Multi-language (English/Khmer/Chinese), Multi-theme (Black/White/Blue Vintage)។</p>
+
+<!-- 2. ARCHITECTURE -->
+<h1 id="arch">2. Architecture Overview</h1>
+<p>Project ប្រើ <strong>Clean Architecture</strong> + <strong>GetX MVC Pattern</strong>:</p>
+<table>
+  <tr><th>Layer</th><th>Location</th><th>Description</th></tr>
+  <tr><td>Presentation</td><td>modules/*/views/, modules/*/controllers/</td><td>UI Screens + Business Logic</td></tr>
+  <tr><td>Domain</td><td>domain/repositories/</td><td>Abstract Repository Interfaces</td></tr>
+  <tr><td>Data</td><td>data/models/, data/providers/</td><td>Data Structures + Firebase Implementations</td></tr>
+  <tr><td>Services</td><td>services/</td><td>Global Services (Auth, Storage, Notification)</td></tr>
+  <tr><td>Shared</td><td>shared/</td><td>Constants, Themes, Translations, Widgets, Utils</td></tr>
+</table>
+
+<!-- 3. ROOT FILES -->
+<h1 id="root">3. Root Files (lib/)</h1>
+
+<h2>&#128196; main.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Entry Point ចម្បងរបស់ Application</td></tr>
+  <tr><td class="label">គោលបំណង</td><td>Initialize Services ទាំងអស់ ហើយ Launch App</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>
+    1) <span class="code">Firebase.initializeApp()</span> &rarr;
+    2) <span class="code">FirebaseAppCheck.activate()</span> (AndroidDebugProvider in debug) &rarr;
+    3) <span class="code">GetStorage.init()</span> &rarr;
+    4) <span class="code">Hive.initFlutter()</span> &rarr;
+    5) Timezone init &rarr;
+    6) Screen orientation lock &rarr;
+    7) <span class="code">ThemeController + LanguageController</span> &rarr;
+    8) <span class="code">runApp()</span> &rarr;
+    9) StorageService + AuthService + NotificationService (background)
+  </td></tr>
+  <tr><td class="label">Class</td><td><span class="code">LuyMoneyApp extends StatelessWidget</span> &rarr; Obx(() => GetMaterialApp(...))</td></tr>
+  <tr><td class="label">Dependencies</td><td>firebase_core, firebase_app_check, get, get_storage, hive_flutter, timezone</td></tr>
+  <tr><td class="label">សម្រាប់ធ្វើអ្វី</td><td>App ចាប់ផ្ដើមត្រង់នេះ - គ្រប់ Service initialization ឆ្លងកាត់ File នេះ</td></tr>
+</table>
+
+<h2>&#128196; app_config.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>App Configuration Constants (Central Config File)</td></tr>
+  <tr><td class="label">Constants</td><td>appName, appVersion, telegramSupportUrl, privacyPolicyUrl, termsOfServiceUrl, faqUrl</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>Static class ដែល expose constants ឱ្យ App ទូទៅប្រើ</td></tr>
+  <tr><td class="label">សម្រាប់ធ្វើអ្វី</td><td>បើចង់ផ្លាស់ URL ឬ App Name - Edit File នេះតែមួយ</td></tr>
+</table>
+
+<h2>&#128196; firebase_options.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Firebase Configuration File (Auto-generated by FlutterFire CLI)</td></tr>
+  <tr><td class="label">Content</td><td>API Keys, App IDs, Project IDs, Storage Buckets, Auth Domains សម្រាប់ Android, iOS, Web, Windows, macOS</td></tr>
+  <tr><td class="label">ដំណើការ</td><td><span class="code">DefaultFirebaseOptions.currentPlatform</span> return <span class="code">FirebaseOptions</span> ត្រឹមត្រូវតាម Platform</td></tr>
+  <tr><td class="label">&#9888; Note</td><td>Do NOT edit manually - Regenerate ដោយ <span class="code">flutterfire configure</span></td></tr>
+</table>
+
+<!-- 4. ROUTES -->
+<h1 id="routes">4. Routes (lib/app/routes/)</h1>
+<p>Folder នេះគ្រប់គ្រង Navigation ទាំងអស់ក្នុង App។</p>
+
+<h2>&#128196; app_routes.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Route Name Constants</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>Class <span class="code">Routes</span> ជាមួយ static const strings</td></tr>
+  <tr><td class="label">Routes</td><td>SPLASH, LOGIN, REGISTER, FORGOT_PASSWORD, HOME, SUBSCRIPTION, PAYMENT, VIDEOS, VIDEO_DETAIL, ARTICLES, ARTICLE_DETAIL, SUPPORT, SETTINGS, PROFILE, ADMIN, ADMIN_USERS, ADMIN_CONTENT, ADMIN_ANALYTICS, ADMIN_NOTIFICATIONS</td></tr>
+  <tr><td class="label">សម្រាប់ធ្វើអ្វី</td><td>ប្រើ <span class="code">Routes.HOME</span> ជំនួស <span class="code">'/home'</span> ដើម្បីការពារ Typos</td></tr>
+</table>
+
+<h2>&#128196; app_pages.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Route-to-Widget Mapping + Navigation Registry</td></tr>
+  <tr><td class="label">INITIAL</td><td>Routes.SPLASH</td></tr>
+  <tr><td class="label">ដំណើការ</td><td><span class="code">List&lt;GetPage&gt; routes</span> Map routes → Views + Bindings + Middlewares. GetX ប្រើ List នេះ Navigate</td></tr>
+  <tr><td class="label">សម្រាប់ធ្វើអ្វី</td><td>Register Route ថ្មី → Add <span class="code">GetPage()</span> ត្រង់នេះ</td></tr>
+</table>
+
+<h2>&#128196; middlewares/auth_middleware.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Authentication Route Guard</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>extends GetMiddleware → redirect() → check <span class="code">authService.isLoggedIn</span> → if false → redirect to LOGIN</td></tr>
+  <tr><td class="label">ប្រើ Routes</td><td>HOME, SUBSCRIPTION, PAYMENT, VIDEOS, ARTICLES, SUPPORT, SETTINGS, PROFILE, ADMIN</td></tr>
+</table>
+
+<h2>&#128196; middlewares/subscription_middleware.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Subscription Route Guard (Premium Content Protection)</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>Check <span class="code">hasActiveSubscription</span> → if false → redirect to SUBSCRIPTION</td></tr>
+  <tr><td class="label">ប្រើ Routes</td><td>VIDEOS, ARTICLES, VIDEO_DETAIL, ARTICLE_DETAIL</td></tr>
+</table>
+
+<h2>&#128196; middlewares/admin_middleware.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Admin Route Guard</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>Check <span class="code">authService.isAdmin</span> (role == 'admin') → if false → redirect to HOME</td></tr>
+  <tr><td class="label">ប្រើ Routes</td><td>ADMIN, ADMIN_USERS, ADMIN_CONTENT, ADMIN_ANALYTICS, ADMIN_NOTIFICATIONS</td></tr>
+</table>
+
+<!-- 5. SERVICES -->
+<h1 id="services">5. Services (lib/app/services/)</h1>
+<p>Services ជា Global <span class="code">GetxService</span> ដែល Register ក្នុង <span class="code">main()</span> ហើយ Available ពេញ App ដោយ <span class="code">Get.find&lt;ServiceName&gt;()</span>.</p>
+
+<h2>&#128196; auth_service.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Firebase Authentication Service (Global Auth State)</td></tr>
+  <tr><td class="label">Observables</td><td><span class="code">Rx&lt;UserModel?&gt; currentUser</span>, <span class="code">RxBool isLoading</span></td></tr>
+  <tr><td class="label">Getters</td><td><span class="code">isLoggedIn</span> (Firebase Auth only), <span class="code">isAdmin</span> (role == admin), <span class="code">hasActiveSubscription</span>, <span class="code">firebaseUser</span></td></tr>
+  <tr><td class="label">Methods</td><td>signInWithEmail(), registerWithEmail(), sendPasswordResetEmail(), signOut(), updateUserProfile(), deleteUserData(), refreshUser()</td></tr>
+  <tr><td class="label">Timeouts</td><td>Firebase Auth calls: 20s timeout. Firestore loads: 10s timeout (prevent infinite hang)</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>Listen to <span class="code">authStateChanges()</span> → <span class="code">_loadUserData(uid)</span> ពី Firestore → set currentUser</td></tr>
+  <tr><td class="label">សម្រាប់ធ្វើអ្វី</td><td>ប្រើ <span class="code">Get.find&lt;AuthService&gt;()</span> ពីទីណាក៏បាន ដើម្បីដឹង User Info + Login status</td></tr>
+</table>
+
+<h2>&#128196; notification_service.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Push Notification Service (Local + FCM)</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>1) Init flutter_local_notifications 2) Create Android channel 3) Request FCM permission 4) Listen onMessage 5) Handle background messages</td></tr>
+  <tr><td class="label">Methods</td><td>scheduleExpiryReminders(), cancelAllReminders(), getFCMToken()</td></tr>
+  <tr><td class="label">Scheduled Reminders</td><td>7 days before expiry, 1 day before expiry, on expiry day</td></tr>
+  <tr><td class="label">Platform</td><td>Android + iOS (Web not supported)</td></tr>
+</table>
+
+<h2>&#128196; storage_service.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Local Storage Service Wrapper around GetStorage</td></tr>
+  <tr><td class="label">Keys</td><td>theme, lang, remember_email, biometric_enabled, notif_subscription, notif_content, notif_promo, bookmarked_videos, bookmarked_articles</td></tr>
+  <tr><td class="label">Methods</td><td>read(), write(), remove(), erase(), toggleVideoBookmark(), toggleArticleBookmark(), isVideoBookmarked()</td></tr>
+</table>
+
+<h2>&#128196; analytics_service.dart</h2>
+<table>
+  <tr><td class="label">តួនាទី</td><td>Firebase Analytics Event Tracking</td></tr>
+  <tr><td class="label">ដំណើការ</td><td>Wrap FirebaseAnalytics → logEvent() for custom user behavior tracking</td></tr>
+</table>
+
+<!-- 6. MODELS -->
+<h1 id="models">6. Data Models (lib/app/data/models/)</h1>
+<p>Models ជា Data Structures ដែល Map ជាមួយ Firestore Documents</p>
+
+<h2>&#128196; user_model.dart</h2>
+<table>
+  <tr><td class="label">Fields</td><td>id, name, email, phone, avatarUrl, role, subscription, createdAt, biometricEnabled</td></tr>
+  <tr><td class="label">role values</td><td>'user' (default) | 'admin'</td></tr>
+  <tr><td class="label">Computed</td><td>isAdmin (role == 'admin'), hasActiveSubscription</td></tr>
+  <tr><td class="label">Methods</td><td>fromFirestore(), toFirestore(), toMap(), copyWith()</td></tr>
+  <tr><td class="label">Firestore</td><td>Collection: <span class="code">users</span> / Document ID: Firebase Auth UID</td></tr>
+</table>
+
+<h2>&#128196; content_model.dart</h2>
+<table>
+  <tr><th>Model</th><th>Fields</th><th>Collection</th></tr>
+  <tr><td>VideoModel</td><td>id, title, description, videoUrl, thumbnailUrl, category, isPremium, viewCount, durationMinutes, publishedAt</td><td>videos</td></tr>
+  <tr><td>ArticleModel</td><td>id, title, content, coverImageUrl, category, isPremium, viewCount, readTimeMinutes, publishedAt</td><td>articles</td></tr>
+</table>
+
+<h2>&#128196; subscription_model.dart</h2>
+<table>
+  <tr><td class="label">Fields</td><td>id, userId, planId, startDate, expiryDate, isActive, paymentMethod, transactionId, createdAt</td></tr>
+  <tr><td class="label">planId values</td><td>monthly, quarterly, biannual, annual</td></tr>
+  <tr><td class="label">Computed</td><td>isExpired, daysRemaining</td></tr>
+  <tr><td class="label">Firestore</td><td>Collection: subscriptions</td></tr>
+</table>
+
+<h2>&#128196; chat_model.dart</h2>
+<table>
+  <tr><td class="label">Fields</td><td>id, senderId, message, timestamp, type, imageUrl, isFromAdmin</td></tr>
+  <tr><td class="label">MessageType</td><td>text | image</td></tr>
+  <tr><td class="label">Firestore</td><td>chats/{userId}/messages/{messageId}</td></tr>
+</table>
+
+<!-- 7. DOMAIN -->
+<h1 id="domain">7. Domain Layer (lib/app/domain/repositories/)</h1>
+<p>Abstract Interfaces ដែល define contract សម្រាប់ Data Layer Implementations</p>
+<table>
+  <tr><th>File</th><th>Interface</th><th>Key Methods</th></tr>
+  <tr><td>auth_repository.dart</td><td>AuthRepository</td><td>signIn(), register(), signOut(), resetPassword(), getCurrentUser()</td></tr>
+  <tr><td>content_repository.dart</td><td>ContentRepository</td><td>getVideos(), getArticles(), getVideoById(), getArticleById()</td></tr>
+  <tr><td>subscription_repository.dart</td><td>SubscriptionRepository</td><td>getCurrentSubscription(), subscribe(), cancelSubscription()</td></tr>
+</table>
+
+<!-- 8. PROVIDERS -->
+<h1 id="providers">8. Data Providers (lib/app/data/providers/)</h1>
+<table>
+  <tr><th>File</th><th>Implements</th><th>Description</th></tr>
+  <tr><td>auth_repository_impl.dart</td><td>AuthRepository</td><td>Firebase Auth + Firestore implementation</td></tr>
+  <tr><td>content_repository_impl.dart</td><td>ContentRepository</td><td>Firestore videos/articles collections implementation</td></tr>
+</table>
+
+<!-- 9. MODULES -->
+<h1 id="modules">9. Modules (lib/app/modules/)</h1>
+<p>Modules = Feature-based Organization. Module នីមួយៗមាន: <span class="code">bindings/</span> + <span class="code">controllers/</span> + <span class="code">views/</span></p>
+
+<h2>9.1 Auth Module (modules/auth/)</h2>
+
+<h3>&#128196; auth_binding.dart</h3>
+<table>
+  <tr><td class="label">តួនាទី</td><td>GetX Dependency Injection for Auth Module</td></tr>
+  <tr><td class="label">ដំណើការ</td><td><span class="code">Get.lazyPut&lt;AuthController&gt;(() =&gt; AuthController(), fenix: true)</span></td></tr>
+  <tr><td class="label">fenix: true</td><td>Recreate Controller ថ្មី ប្រសិនបើ Disposed - ការពារ TextEditingController disposed error</td></tr>
+</table>
+
+<h3>&#128196; auth_controller.dart</h3>
+<table>
+  <tr><td class="label">Form Controllers</td><td>emailController, passwordController, confirmPasswordController, nameController, phoneController</td></tr>
+  <tr><td class="label">States</td><td>isLoading, isPasswordVisible, isConfirmPasswordVisible, rememberMe, otpSent</td></tr>
+  <tr><td class="label">login()</td><td>Validate → signInWithEmail → wait Firestore (max 5s) → isAdmin? ADMIN : HOME</td></tr>
+  <tr><td class="label">register()</td><td>Validate → registerWithEmail → navigate SUBSCRIPTION</td></tr>
+  <tr><td class="label">changePassword()</td><td>reauthenticateWithCredential → updatePassword</td></tr>
+  <tr><td class="label">authenticateWithBiometric()</td><td>local_auth biometric → auto login with saved credentials</td></tr>
+</table>
+
+<h3>&#128196; splash_view.dart</h3>
+<table>
+  <tr><td class="label">Animation</td><td>FadeTransition (0.3→1.0) + ScaleTransition (0.8→1.0) over 1.5 seconds</td></tr>
+  <tr><td class="label">Navigation Logic</td><td>After 2.5s: isAdmin → ADMIN, hasSubscription → HOME, no subscription → SUBSCRIPTION, not logged in → LOGIN</td></tr>
+  <tr><td class="label">UI</td><td>Gold coin logo, "LUY MONEY" text, "Financial Freedom" subtitle, Loading indicator</td></tr>
+</table>
+
+<h3>&#128196; login_view.dart</h3>
+<table>
+  <tr><td class="label">UI Elements</td><td>Gold logo, Email field, Password field (toggle visibility), Remember Me checkbox, Forgot Password link, Login button (GoldButton)</td></tr>
+  <tr><td class="label">Validation</td><td>Email format check, Password minimum 8 characters</td></tr>
+</table>
+
+<h3>&#128196; register_view.dart</h3>
+<table>
+  <tr><td class="label">UI Elements</td><td>Full Name, Email, Phone Number, Password, Confirm Password fields + Register button</td></tr>
+  <tr><td class="label">Validation</td><td>Name min 2 chars, Email format, Password min 8 chars, Password match</td></tr>
+</table>
+
+<h3>&#128196; forgot_password_view.dart</h3>
+<table>
+  <tr><td class="label">ដំណើការ</td><td>Enter email → Firebase sendPasswordResetEmail() → Show success state with confirmation</td></tr>
+</table>
+
+<h2>9.2 Home Module (modules/home/)</h2>
+
+<h3>&#128196; home_binding.dart</h3>
+<p>lazyPut HomeController + ContentController</p>
+
+<h3>&#128196; home_controller.dart</h3>
+<table>
+  <tr><td class="label">Methods</td><td>navigateToVideos(), navigateToArticles(), navigateToSupport(), navigateToSettings(), navigateToSubscription()</td></tr>
+  <tr><td class="label">States</td><td>Observe AuthService.currentUser for personalized greeting</td></tr>
+</table>
+
+<h3>&#128196; home_view.dart</h3>
+<table>
+  <tr><td class="label">UI Sections</td><td>1) Welcome + Username 2) Subscription Status Banner 3) Stats Cards (Videos/Articles/Topics) 4) Latest Videos (horizontal scroll, height=screenWidth*0.55) 5) Latest Articles (list)</td></tr>
+  <tr><td class="label">Responsive</td><td>Video list height responsive to screen width</td></tr>
+</table>
+
+<h2>9.3 Content Module (modules/content/)</h2>
+
+<h3>&#128196; content_controller.dart</h3>
+<table>
+  <tr><td class="label">States</td><td>videos, articles, isLoading, selectedCategory, searchQuery</td></tr>
+  <tr><td class="label">Methods</td><td>fetchVideos(), fetchArticles(), filterByCategory(), searchContent(), toggleBookmark()</td></tr>
+</table>
+
+<h3>&#128196; videos_view.dart</h3>
+<p>Search bar + Category Chips filter + Videos ListView + Empty state icon + Shimmer loading</p>
+
+<h3>&#128196; articles_view.dart</h3>
+<p>Search bar + Category Chips filter + Articles ListView + Empty state + Shimmer loading</p>
+
+<h3>&#128196; video_detail_view.dart</h3>
+<p>Video Player, Title, Description, Category Badge, View count, Duration, Bookmark button</p>
+
+<h3>&#128196; article_detail_view.dart</h3>
+<p>SliverAppBar (expandedHeight = screenHeight*0.3), Author info, HTML Content rendered, Bookmark button</p>
+
+<h2>9.4 Settings Module (modules/settings/)</h2>
+
+<h3>&#128196; settings_controller.dart</h3>
+<table>
+  <tr><td class="label">Form</td><td>nameController, phoneController, currentPasswordController, newPasswordController</td></tr>
+  <tr><td class="label">Notification toggles</td><td>subscriptionReminders, newContentAlerts, promotionalMessages (persisted to GetStorage)</td></tr>
+  <tr><td class="label">updateProfile()</td><td>Validate form → AuthService.updateUserProfile() → Firestore update</td></tr>
+  <tr><td class="label">uploadAvatar()</td><td>Upload to Firebase Storage (avatars/{uid}.jpg) → update Firestore avatarUrl</td></tr>
+  <tr><td class="label">changePassword()</td><td>reauthenticate with current password → updatePassword with new password</td></tr>
+  <tr><td class="label">deleteAccount()</td><td>Delete Firestore doc → Firebase Auth user.delete() → navigate LOGIN</td></tr>
+</table>
+
+<h3>&#128196; language_controller.dart</h3>
+<table>
+  <tr><td class="label">Supported</td><td>English (en_US), ភាសាខ្មែរ (km_KH), 中文 (zh_CN)</td></tr>
+  <tr><td class="label">changeLanguage()</td><td>Update currentLocale observable + Get.updateLocale() + persist to GetStorage</td></tr>
+</table>
+
+<h3>&#128196; settings_view.dart</h3>
+<table>
+  <tr><td class="label">Sections</td><td>ACCOUNT (Profile, Change Password dialog, Delete Account dialog)</td></tr>
+  <tr><td class="label"></td><td>ADMIN PANEL (visible only when isAdmin = true)</td></tr>
+  <tr><td class="label"></td><td>APPEARANCE (Theme selector 3 options, Language selector)</td></tr>
+  <tr><td class="label"></td><td>NOTIFICATIONS (3 toggles), SUBSCRIPTION, SUPPORT, LEGAL, App Version, Logout</td></tr>
+</table>
+
+<h3>&#128196; profile_view.dart</h3>
+<table>
+  <tr><td class="label">UI</td><td>Avatar (tap to change), Role badge (Admin/Member), Name field, Email (readonly), Phone field, Save + Change Password + Delete Account</td></tr>
+  <tr><td class="label">Fallback</td><td>ប្រើ firebaseUser data ប្រសិនបើ Firestore currentUser = null (ការពារ infinite loading)</td></tr>
+</table>
+
+<h2>9.5 Support Module (modules/support/)</h2>
+
+<h3>&#128196; support_controller.dart</h3>
+<table>
+  <tr><td class="label">userId</td><td>ប្រើ <span class="code">firebaseUser?.uid</span> ( មិនប្រើ currentUser?.id ដើម្បីការពារ null error)</td></tr>
+  <tr><td class="label">_listenToMessages()</td><td>Firestore realtime listener: chats/{uid}/messages ordered by timestamp desc</td></tr>
+  <tr><td class="label">sendMessage()</td><td>Add message to Firestore + update chat metadata (lastMessage, unreadByAdmin)</td></tr>
+  <tr><td class="label">sendImage()</td><td>Upload to Firebase Storage → add image message to Firestore</td></tr>
+</table>
+
+<h3>&#128196; support_view.dart</h3>
+<table>
+  <tr><td class="label">Tabs</td><td>1) In-App Chat (realtime messages, User=gold bubbles, Admin=surface bubbles, image support) 2) Telegram (link to community)</td></tr>
+  <tr><td class="label">Message Bubble</td><td>ConstrainedBox maxWidth = screenWidth * 0.72 (ការពារ overflow)</td></tr>
+</table>
+
+<h2>9.6 Subscription Module (modules/subscription/)</h2>
+
+<h3>&#128196; subscription_controller.dart</h3>
+<p>Plans: Monthly ($5), Quarterly ($12), Biannual ($20), Annual ($35). Payment UI mockup (ABA Pay, Wing Money, Credit Card, PayPal).</p>
+
+<h3>&#128196; promo_code_controller.dart</h3>
+<p>Validate promo code against Firestore promo_codes collection → apply discount percentage.</p>
+
+<h3>&#128196; referral_controller.dart</h3>
+<p>Generate referral link → share using share_plus package.</p>
+
+<h3>&#128196; subscription_view.dart</h3>
+<p>Plan Cards (color-coded), Price comparison, Popular/Best Value badges, Promo code input, Subscribe button.</p>
+
+<h3>&#128196; payment_view.dart</h3>
+<p>Order summary card, Payment method selection (radio buttons), Pay Now button.</p>
+
+<h2>9.7 Admin Module (modules/admin/)</h2>
+
+<h3>&#128196; admin_controller.dart</h3>
+<table>
+  <tr><td class="label">Users</td><td>fetchUsers() with search + filter (all/active/expired/free), extendUserSubscription(), deactivateUser(), deleteUser()</td></tr>
+  <tr><td class="label">Content</td><td>fetchContent(), addVideo() → Firestore videos collection, addArticle() → Firestore articles collection, deleteVideo(), deleteArticle()</td></tr>
+  <tr><td class="label">Analytics</td><td>totalUsers, activeUsers, expiredUsers, freeUsers, monthlyRevenue, totalRevenue, revenueChartData (6 months)</td></tr>
+  <tr><td class="label">Notifications</td><td>sendPushNotification() → save to admin_notifications collection (Cloud Function processes it)</td></tr>
+</table>
+
+<h3>&#128196; admin_view.dart</h3>
+<table>
+  <tr><td class="label">Layout</td><td>Wide (>600px): Side Navigation 200px + Content Area. Mobile: Bottom Navigation + Content Area</td></tr>
+  <tr><td class="label">Tabs</td><td>Users, Content, Analytics, Notify</td></tr>
+  <tr><td class="label">Home Button</td><td>Get.offAllNamed('/home') → return to main app</td></tr>
+</table>
+
+<h3>&#128196; admin_users_view.dart</h3>
+<p>Search bar, Status filter chips (All/Active/Expired/Free), User list with subscription info, Action dialogs (Extend/Deactivate/Delete).</p>
+
+<h3>&#128196; admin_content_view.dart</h3>
+<table>
+  <tr><td class="label">Tabs</td><td>Videos | Articles</td></tr>
+  <tr><td class="label">Add Video</td><td>Title*, YouTube URL*, Category, Description → Firestore videos collection</td></tr>
+  <tr><td class="label">Add Article</td><td>Title*, Cover Image URL, Category, Description → Firestore articles collection</td></tr>
+  <tr><td class="label">Delete</td><td>Confirmation dialog → delete from Firestore</td></tr>
+</table>
+
+<h3>&#128196; admin_analytics_view.dart</h3>
+<p>Stats cards (Total/Active/Expired/Free users, Monthly/Total Revenue), Revenue Line Chart (last 6 months, height=screenHeight*0.25), User Distribution Pie Chart (height=screenHeight*0.2).</p>
+
+<h3>&#128196; admin_notifications_view.dart</h3>
+<p>Title field, Message field, Target selector (All Users/Active Subscribers/Expiring Soon), Send button → save to Firestore admin_notifications.</p>
+
+<!-- 10. SHARED -->
+<h1 id="shared">10. Shared Layer (lib/app/shared/)</h1>
+
+<h2>10.1 Constants (shared/constants/)</h2>
+
+<h3>&#128196; app_colors.dart</h3>
+<table>
+  <tr><th>Group</th><th>Colors</th></tr>
+  <tr><td>Brand/Gold</td><td>gold #D4AF37, goldDark #B8960C, goldLight #F0C832, goldAccent #E8C547</td></tr>
+  <tr><td>Black Theme</td><td>blackBackground #0A0A0A, blackSurface #1A1A1A, blackCard #1E1E1E, blackTextPrimary #FFFFFF</td></tr>
+  <tr><td>White Theme</td><td>whiteBackground #FFFFFF, whiteSurface #F5F5F5, whiteTextPrimary #121212</td></tr>
+  <tr><td>Blue Theme</td><td>blueBackground #1B2A4A, blueSurface #243560, blueTextPrimary #E8EAF6</td></tr>
+  <tr><td>Status</td><td>success #4CAF50, warning #FFC107, error #F44336, info #2196F3</td></tr>
+  <tr><td>Gradients</td><td>goldGradient (D4AF37→F0C832→B8960C), darkGradient</td></tr>
+</table>
+
+<h3>&#128196; app_dimensions.dart</h3>
+<p>Static constants for padding, margins, border radius, icon sizes used throughout the app.</p>
+
+<h2>10.2 Themes (shared/themes/)</h2>
+
+<h3>&#128196; app_themes.dart</h3>
+<table>
+  <tr><td class="label">AppTheme enum</td><td>white | black | oldBlue</td></tr>
+  <tr><td class="label">ThemeController</td><td>switchTheme(), persist to GetStorage, update SystemUI overlay (status bar color)</td></tr>
+  <tr><td class="label">AppThemes.getTheme()</td><td>Return ThemeData (Material3, Google Fonts Inter/Playfair) for each AppTheme</td></tr>
+  <tr><td class="label">AppColorExtension</td><td>ThemeExtension - access via context.appColors.background/surface/primary/textPrimary etc.</td></tr>
+</table>
+
+<h2>10.3 Translations (shared/translations/)</h2>
+
+<h3>&#128196; app_translations.dart</h3>
+<p>extends Translations → Map { 'en_US': enUS, 'km_KH': kmKH, 'zh_CN': zhCN }. ប្រើ <span class="code">'key'.tr</span> ក្នុង Widget.</p>
+
+<h3>&#128196; locales/en_us.dart</h3>
+<p>English translation strings covering: Auth, Home, Content, Support, Settings, Account actions, Errors, Notifications, Payment, General.</p>
+
+<h3>&#128196; locales/km_kh.dart</h3>
+<p>Khmer (Cambodia) translation strings - same keys as en_us.dart but in Khmer language.</p>
+
+<h3>&#128196; locales/zh_cn.dart</h3>
+<p>Chinese Simplified translation strings.</p>
+
+<h2>10.4 Utils (shared/utils/)</h2>
+
+<h3>&#128196; responsive_layout.dart</h3>
+<table>
+  <tr><td class="label">ResponsiveLayout Widget</td><td>Switch Mobile/Tablet/Desktop layout (breakpoints: 600px, 1024px)</td></tr>
+  <tr><td class="label">AdaptiveGrid Widget</td><td>Auto 1/2/3 column grid based on screen size</td></tr>
+  <tr><td class="label">ResponsiveContext Extension</td><td>context.rSize(x): scale by screenWidth/390, context.rFont(x): responsive font, context.screenWidth/Height, context.isMobile/isTablet/isDesktop, context.rPadding(h,v)</td></tr>
+</table>
+
+<h3>&#128196; app_utils.dart</h3>
+<table>
+  <tr><td class="label">AppSnackbar</td><td>success(msg), error(msg), warning(msg) - Show GetX snackbars with consistent gold/red/yellow styling at bottom</td></tr>
+</table>
+
+<h2>10.5 Widgets (shared/widgets/)</h2>
+
+<h3>&#128196; gold_button.dart</h3>
+<table>
+  <tr><td class="label">Props</td><td>label (String), onPressed (VoidCallback), isLoading (bool), isOutlined (bool)</td></tr>
+  <tr><td class="label">States</td><td>isLoading → CircularProgressIndicator. isOutlined → gold border only. Normal → gold gradient fill, black text</td></tr>
+</table>
+
+<h3>&#128196; custom_text_field.dart</h3>
+<table>
+  <tr><td class="label">Props</td><td>controller, label, hint, validator, isPassword, readOnly, prefixIcon, keyboardType, textInputAction, maxLines</td></tr>
+  <tr><td class="label">Feature</td><td>Password field has toggle visibility eye icon</td></tr>
+</table>
+
+<h3>&#128196; subscription_banner.dart</h3>
+<table>
+  <tr><td class="label">States</td><td>Active subscription → green banner with expiry date. Expiring soon → yellow warning. No subscription → gold banner "Tap to unlock"</td></tr>
+  <tr><td class="label">Action</td><td>Tap → navigate to SUBSCRIPTION</td></tr>
+</table>
+
+<h3>&#128196; category_chips.dart</h3>
+<p>Horizontal scrollable filter chips: All, Finance, Investment, Mindset, Trading, Savings, Business. Selected chip = gold gradient, unselected = outlined.</p>
+
+<h3>&#128196; lock_overlay.dart</h3>
+<p>Semi-transparent overlay with lock icon + "Subscribe to unlock" text shown over premium content for non-subscribed users.</p>
+
+<h3>&#128196; shimmer_card.dart</h3>
+<p>Animated shimmer skeleton placeholder shown while content is loading from Firestore.</p>
+
+<h3>&#128196; video_card.dart</h3>
+<p>Thumbnail, Title (max 2 lines), Category badge, Duration, View count, Premium lock overlay, Bookmark toggle button.</p>
+
+<h3>&#128196; article_card.dart</h3>
+<p>Cover image, Title (max 2 lines), Category badge, Read time, View count, Premium lock overlay, Bookmark toggle button.</p>
+
+<h3>&#128196; widgets.dart</h3>
+<p>Barrel export file - imports all widgets above for single import convenience.</p>
+
+<!-- 11. FIREBASE -->
+<h1 id="firebase">11. Firebase / Firestore Database Structure</h1>
+
+<h2>Firestore Collections</h2>
+<table>
+  <tr><th>Collection Path</th><th>Purpose</th><th>Document ID</th></tr>
+  <tr><td>users/{uid}</td><td>User profiles + role</td><td>Firebase Auth UID</td></tr>
+  <tr><td>chats/{uid}</td><td>Chat metadata per user</td><td>Firebase Auth UID</td></tr>
+  <tr><td>chats/{uid}/messages/{msgId}</td><td>Individual chat messages</td><td>Auto-generated</td></tr>
+  <tr><td>videos/{videoId}</td><td>Video content items</td><td>Auto-generated</td></tr>
+  <tr><td>articles/{articleId}</td><td>Article content items</td><td>Auto-generated</td></tr>
+  <tr><td>subscriptions/{subId}</td><td>User subscription records</td><td>Auto-generated</td></tr>
+  <tr><td>admin_notifications/{id}</td><td>Queued push notifications</td><td>Auto-generated</td></tr>
+</table>
+
+<h2>Security Rules (Current)</h2>
+<pre style="background:#1e1e1e;color:#dcdcdc;padding:15px;border-radius:5px;font-size:10pt;">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null
+                         &amp;&amp; request.auth.uid == userId;
+    }
+    match /chats/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         &amp;&amp; request.auth.uid == userId;
+    }
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+</pre>
+
+<!-- 12. ANDROID CONFIG -->
+<h1 id="android">12. Android Configuration</h1>
+
+<h2>android/app/build.gradle.kts</h2>
+<table>
+  <tr><td class="label">Package ID</td><td>com.luymoney.app</td></tr>
+  <tr><td class="label">Namespace</td><td>com.luymoney.app</td></tr>
+  <tr><td class="label">minSdk</td><td>flutter.minSdkVersion (21+)</td></tr>
+  <tr><td class="label">Java Version</td><td>VERSION_17</td></tr>
+  <tr><td class="label">Core Desugaring</td><td>isCoreLibraryDesugaringEnabled = true (required for flutter_local_notifications)</td></tr>
+  <tr><td class="label">Dependencies</td><td>coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")</td></tr>
+  <tr><td class="label">Plugins</td><td>com.android.application, kotlin-android, com.google.gms.google-services, com.google.firebase.crashlytics, dev.flutter.flutter-gradle-plugin</td></tr>
+</table>
+
+<h2>android/build.gradle.kts</h2>
+<table>
+  <tr><td class="label">Classpaths</td><td>com.google.gms:google-services:4.4.2, com.google.firebase:firebase-crashlytics-gradle:3.0.3</td></tr>
+</table>
+
+<h2>android/app/src/main/kotlin/com/luymoney/app/MainActivity.kt</h2>
+<table>
+  <tr><td class="label">Package</td><td>com.luymoney.app</td></tr>
+  <tr><td class="label">Class</td><td>MainActivity extends FlutterActivity</td></tr>
+</table>
+
+<!-- 13. DEPENDENCIES -->
+<h1 id="deps">13. Key Dependencies (pubspec.yaml)</h1>
+<table>
+  <tr><th>Category</th><th>Package</th><th>Purpose</th></tr>
+  <tr><td>State/Navigation</td><td>get ^4.x</td><td>GetX: Controller, Routing, State Management, Translations</td></tr>
+  <tr><td>Local Storage</td><td>get_storage ^2.x</td><td>Simple Key-Value persistent storage</td></tr>
+  <tr><td>Local Storage</td><td>hive_flutter ^1.x</td><td>Box-based local database</td></tr>
+  <tr><td>Firebase Core</td><td>firebase_core, firebase_auth, cloud_firestore</td><td>Firebase initialization, Auth, Database</td></tr>
+  <tr><td>Firebase Storage</td><td>firebase_storage</td><td>File uploads (avatars, chat images)</td></tr>
+  <tr><td>Firebase Extra</td><td>firebase_analytics, firebase_crashlytics, firebase_messaging, firebase_app_check</td><td>Analytics, Crash reports, Push notifications, Security</td></tr>
+  <tr><td>UI</td><td>cached_network_image, shimmer, fl_chart</td><td>Image caching, Loading skeleton, Charts</td></tr>
+  <tr><td>Media</td><td>image_picker, video_player, youtube_player_flutter</td><td>Gallery pick, Video playback, YouTube embed</td></tr>
+  <tr><td>Auth</td><td>local_auth ^3.x</td><td>Biometric authentication (fingerprint/face)</td></tr>
+  <tr><td>Payment</td><td>flutter_stripe, in_app_purchase</td><td>Stripe payment, In-app purchase</td></tr>
+  <tr><td>Utils</td><td>url_launcher, share_plus, intl, package_info_plus</td><td>Open URLs, Share content, Date format, App info</td></tr>
+  <tr><td>Notifications</td><td>flutter_local_notifications ^21.x, timezone</td><td>Schedule local notifications with timezone support</td></tr>
+  <tr><td>HTML</td><td>flutter_html</td><td>Render HTML content for articles</td></tr>
+  <tr><td>Fonts</td><td>google_fonts</td><td>Inter + Playfair Display fonts</td></tr>
+</table>
+
+<br><br>
+<hr>
+<p style="text-align:center;color:#666;font-size:10pt;">
+  LuyMoney Technical Documentation &mdash; Generated May 2026<br>
+  Flutter Project &mdash; Firebase Backend &mdash; GetX State Management
+</p>
+
+</body>
+</html>

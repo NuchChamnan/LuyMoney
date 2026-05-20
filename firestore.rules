@@ -1,0 +1,94 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function hasActiveSubscription() {
+      let sub = get(/databases/$(database)/documents/subscriptions/$(request.auth.uid));
+      return sub.data.isActive == true &&
+             sub.data.expiryDate > request.time;
+    }
+
+    // ── Users ──────────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+      allow delete: if isAdmin();
+    }
+
+    // ── Subscriptions ──────────────────────────────────────────────────────────
+    match /subscriptions/{subId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || isAdmin()
+      );
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── Content (Videos) ──────────────────────────────────────────────────────
+    match /videos/{videoId} {
+      allow read: if isAuthenticated() && hasActiveSubscription();
+      allow write: if isAdmin();
+    }
+
+    // ── Content (Articles) ────────────────────────────────────────────────────
+    match /articles/{articleId} {
+      allow read: if isAuthenticated() && hasActiveSubscription();
+      allow write: if isAdmin();
+    }
+
+    // ── Chats ─────────────────────────────────────────────────────────────────
+    match /chats/{chatId} {
+      allow read: if isOwner(chatId) || isAdmin();
+      allow update: if isOwner(chatId) || isAdmin();
+
+      match /messages/{messageId} {
+        allow read: if isOwner(chatId) || isAdmin();
+        allow create: if isOwner(chatId) &&
+          request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // ── Admin-only collections ─────────────────────────────────────────────────
+    match /admin_notifications/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /promo_codes/{codeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // immutable logs
+    }
+
+    // ── Referrals ─────────────────────────────────────────────────────────────
+    match /referrals/{refId} {
+      allow read: if isAuthenticated() && (
+        resource.data.referrerId == request.auth.uid || isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+    }
+  }
+}

@@ -1,0 +1,30 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Avatars ────────────────────────────────────────────────────────────────
+    match /avatars/{userId}.jpg {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+                      request.auth.uid == userId &&
+                      request.resource.size < 2 * 1024 * 1024 && // 2MB limit
+                      request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Chat images ───────────────────────────────────────────────────────────
+    match /chat_images/{userId}/{imageId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null &&
+                      request.auth.uid == userId &&
+                      request.resource.size < 5 * 1024 * 1024 && // 5MB
+                      request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Content thumbnails / media (admin only write) ──────────────────────────
+    match /content/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if false; // Admin uploads via Firebase Console / Functions
+    }
+  }
+}

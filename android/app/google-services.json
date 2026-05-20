@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "496853827418",
+    "project_id": "luymoney-8783a",
+    "storage_bucket": "luymoney-8783a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496853827418:android:1a291f51ce67fd5ecc3d63",
+        "android_client_info": {
+          "package_name": "com.luymoney.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1SSsPAo8qAh_NpILtvs86Mm7q9vLV-a8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
