@@ -96,6 +96,11 @@ class LuyMoneyApp extends StatelessWidget {
   }
 }
 
-Widget Test() {
-  return Container();
+Widget Pricesss() {
+  return Container(
+    color: Colors.white,
+    child: const Center(
+      child: CircularProgressIndicator(),
+    ),
+  );
 }
