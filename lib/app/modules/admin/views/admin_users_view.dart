@@ -178,7 +178,9 @@ class _UserRow extends GetView<AdminController> {
           ],
 
           const SizedBox(height: 10),
-          Row(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               _ActionButton(
                 label: 'Extend',
@@ -186,14 +188,27 @@ class _UserRow extends GetView<AdminController> {
                 color: ext.primary,
                 onTap: () => _showExtendDialog(context),
               ),
-              const SizedBox(width: 8),
               _ActionButton(
                 label: 'Deactivate',
                 icon: Icons.block,
                 color: Colors.orange,
                 onTap: () => controller.deactivateUser(user),
               ),
-              const SizedBox(width: 8),
+              // Promote / Demote Admin
+              if (!user.isAdmin)
+                _ActionButton(
+                  label: 'Make Admin',
+                  icon: Icons.admin_panel_settings_outlined,
+                  color: const Color(0xFF6C63FF),
+                  onTap: () => _showPromoteDialog(context),
+                )
+              else
+                _ActionButton(
+                  label: 'Remove Admin',
+                  icon: Icons.person_outlined,
+                  color: Colors.deepOrange,
+                  onTap: () => _showDemoteDialog(context),
+                ),
               _ActionButton(
                 label: 'Delete',
                 icon: Icons.delete_outline,
@@ -237,6 +252,56 @@ class _UserRow extends GetView<AdminController> {
         ],
       ),
     );
+  }
+
+  void _showPromoteDialog(BuildContext context) {
+    Get.dialog(AlertDialog(
+      title: const Row(children: [
+        Icon(Icons.admin_panel_settings, color: Color(0xFF6C63FF)),
+        SizedBox(width: 8),
+        Text('Make Admin'),
+      ]),
+      content: Text(
+          'Promote "${user.name}" to Admin?\nThey will have full access to the admin panel.'),
+      actions: [
+        TextButton(onPressed: Get.back, child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed: () {
+            Get.back();
+            controller.promoteToAdmin(user);
+          },
+          style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6C63FF),
+              foregroundColor: Colors.white),
+          child: const Text('Make Admin 👑'),
+        ),
+      ],
+    ));
+  }
+
+  void _showDemoteDialog(BuildContext context) {
+    Get.dialog(AlertDialog(
+      title: const Row(children: [
+        Icon(Icons.person, color: Colors.deepOrange),
+        SizedBox(width: 8),
+        Text('Remove Admin'),
+      ]),
+      content: Text(
+          'Remove admin role from "${user.name}"?\nThey will become a regular user.'),
+      actions: [
+        TextButton(onPressed: Get.back, child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed: () {
+            Get.back();
+            controller.demoteFromAdmin(user);
+          },
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepOrange,
+              foregroundColor: Colors.white),
+          child: const Text('Remove Admin'),
+        ),
+      ],
+    ));
   }
 
   void _showDeleteDialog(BuildContext context) {

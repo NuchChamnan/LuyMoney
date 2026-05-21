@@ -191,6 +191,26 @@ class AdminController extends GetxController {
     }
   }
 
+  Future<void> promoteToAdmin(UserModel user) async {
+    try {
+      await _db.collection('users').doc(user.id).update({'role': 'admin'});
+      AppSnackbar.success('${user.name} is now an Admin 👑');
+      await fetchUsers();
+    } catch (e) {
+      AppSnackbar.error('Error: $e');
+    }
+  }
+
+  Future<void> demoteFromAdmin(UserModel user) async {
+    try {
+      await _db.collection('users').doc(user.id).update({'role': 'user'});
+      AppSnackbar.success('${user.name} is now a regular User');
+      await fetchUsers();
+    } catch (e) {
+      AppSnackbar.error('Error: $e');
+    }
+  }
+
   // ── Analytics ──────────────────────────────────────────────────────────────
   Future<void> fetchAnalytics() async {
     isLoadingAnalytics.value = true;
