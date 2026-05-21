@@ -18,18 +18,18 @@ import 'app/modules/settings/controllers/language_controller.dart';
 import 'app_config.dart';
 import 'firebase_options.dart';
 
+// ABCDEF
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Initialize App Check
   if (!kIsWeb) {
     await FirebaseAppCheck.instance.activate(
-      providerAndroid:
-          kDebugMode ? AndroidDebugProvider() : AndroidPlayIntegrityProvider(),
+      providerAndroid: kDebugMode
+          ? AndroidDebugProvider()
+          : AndroidPlayIntegrityProvider(),
     );
   } else {
     // Web requires reCAPTCHA — skip in development
@@ -71,25 +71,31 @@ class LuyMoneyApp extends StatelessWidget {
     final themeController = Get.find<ThemeController>();
     final languageController = Get.find<LanguageController>();
 
-    return Obx(() => GetMaterialApp(
-          title: AppConfig.appName,
-          debugShowCheckedModeBanner: false,
-          theme: AppThemes.getTheme(themeController.currentTheme.value),
-          locale: languageController.currentLocale.value,
-          fallbackLocale: const Locale('en', 'US'),
-          translations: AppTranslations(),
-          initialRoute: AppPages.INITIAL,
-          getPages: AppPages.routes,
-          defaultTransition: Transition.cupertino,
-          transitionDuration: const Duration(milliseconds: 300),
-          builder: (context, child) {
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.noScaling,
-              ),
-              child: child!,
-            );
-          },
-        ));
+    return Obx(
+      () => GetMaterialApp(
+        title: AppConfig.appName,
+        debugShowCheckedModeBanner: false,
+        theme: AppThemes.getTheme(themeController.currentTheme.value),
+        locale: languageController.currentLocale.value,
+        fallbackLocale: const Locale('en', 'US'),
+        translations: AppTranslations(),
+        initialRoute: AppPages.INITIAL,
+        getPages: AppPages.routes,
+        defaultTransition: Transition.cupertino,
+        transitionDuration: const Duration(milliseconds: 300),
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.noScaling),
+            child: child!,
+          );
+        },
+      ),
+    );
   }
+}
+
+Widget Test() {
+  return Container();
 }
