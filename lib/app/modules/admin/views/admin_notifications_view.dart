@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../shared/themes/app_themes.dart';
 import '../../../shared/widgets/gold_button.dart';
@@ -47,7 +47,7 @@ class AdminNotificationsView extends GetView<AdminController> {
                             horizontal: 14, vertical: 8),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? ext.primary.withOpacity(0.2)
+                              ? ext.primary.withValues(alpha: 0.2)
                               : ext.surface,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
@@ -189,7 +189,7 @@ class _Field extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hint,
             hintStyle:
-                TextStyle(color: ext.textSecondary.withOpacity(0.5)),
+                TextStyle(color: ext.textSecondary.withValues(alpha: 0.5)),
             filled: true,
             fillColor: ext.surface,
             border: OutlineInputBorder(

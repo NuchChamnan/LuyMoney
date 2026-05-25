@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum SubscriptionPlan { monthly, quarterly, biannual, annual }
 
-enum PaymentMethod { stripe, abaPay, wingMoney, paypal }
+enum PaymentMethod { abaPay }
 
 class SubscriptionPlanInfo {
   final SubscriptionPlan plan;
@@ -28,9 +28,8 @@ class SubscriptionPlanInfo {
 
   int get savingsPercent {
     const baseMonthlyPrice = 5.0;
-    final totalIfMonthly = pricePerMonth * (durationDays / 30);
-    // ignore: unused_local_variable
-    final savings = ((baseMonthlyPrice - pricePerMonth) / baseMonthlyPrice * 100).round();
+    final savings =
+        ((baseMonthlyPrice - pricePerMonth) / baseMonthlyPrice * 100).round();
     return savings > 0 ? savings : 0;
   }
 }

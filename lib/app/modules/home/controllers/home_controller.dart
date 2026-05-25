@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
 import '../../../data/models/content_model.dart';
-import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 
 class HomeController extends GetxController {

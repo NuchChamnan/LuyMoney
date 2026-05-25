@@ -2,6 +2,8 @@ const Map<String, String> zhCN = {
   // Auth
   'login': '登录',
   'register': '注册',
+  'welcome_back_luy_money': '欢迎回到 Luy Money',
+  'select_language': '选择语言',
   'forgot_password': '忘记密码',
   'email': '邮箱',
   'password': '密码',
@@ -99,7 +101,7 @@ const Map<String, String> zhCN = {
   // Themes
   'theme_white': '白色',
   'theme_black': '黑色',
-  'theme_old_blue': '复古蓝',
+  'theme_old_blue': '深海蓝',
   'theme_light': '浅色',
   'theme_dark': '深色',
   'theme_vintage': '复古',

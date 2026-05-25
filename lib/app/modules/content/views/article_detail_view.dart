@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -55,7 +55,7 @@ class ArticleDetailView extends GetView<ContentController> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.gold.withOpacity(0.15),
+                      color: AppColors.gold.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(article.category.capitalize!,
@@ -85,7 +85,7 @@ class ArticleDetailView extends GetView<ContentController> {
                           Text(
                             '${article.readTimeMinutes} ${'min_read'.tr}',
                             style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.5)),
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
                           ),
                         ],
                       ),

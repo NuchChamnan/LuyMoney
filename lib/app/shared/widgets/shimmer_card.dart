@@ -15,15 +15,19 @@ class ShimmerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base      = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final highlight = isDark ? Colors.grey.shade600 : Colors.grey.shade100;
+
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade800,
-      highlightColor: Colors.grey.shade600,
+      baseColor: base,
+      highlightColor: highlight,
       child: Container(
         height: height,
         width: width ?? double.infinity,
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.grey.shade800,
+          color: base,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),

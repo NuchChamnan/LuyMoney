@@ -1,5 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+﻿import 'package:flutter/material.dart';
 import '../themes/app_themes.dart';
 
 class GoldButton extends StatelessWidget {
@@ -85,7 +84,7 @@ class GoldButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: ext.primary.withOpacity(0.35),
+              color: ext.primary.withValues(alpha: 0.35),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),

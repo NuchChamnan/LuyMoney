@@ -553,11 +553,14 @@ class _EmptySection extends StatelessWidget {
 class _ShimmerCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base      = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final highlight = isDark ? Colors.grey.shade600 : Colors.grey.shade100;
     return SizedBox(
       height: 210,
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade800,
-        highlightColor: Colors.grey.shade600,
+        baseColor: base,
+        highlightColor: highlight,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -567,7 +570,7 @@ class _ShimmerCarousel extends StatelessWidget {
             height: 210,
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade800,
+              color: base,
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -581,9 +584,12 @@ class _ShimmerCarousel extends StatelessWidget {
 class _ShimmerList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final base      = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final highlight = isDark ? Colors.grey.shade600 : Colors.grey.shade100;
     return Shimmer.fromColors(
-      baseColor: Colors.grey.shade800,
-      highlightColor: Colors.grey.shade600,
+      baseColor: base,
+      highlightColor: highlight,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Column(
@@ -593,7 +599,7 @@ class _ShimmerList extends StatelessWidget {
               height: 100,
               margin: const EdgeInsets.only(bottom: 12),
               decoration: BoxDecoration(
-                color: Colors.grey.shade800,
+                color: base,
                 borderRadius: BorderRadius.circular(14),
               ),
             ),

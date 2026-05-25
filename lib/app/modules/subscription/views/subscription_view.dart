@@ -47,7 +47,7 @@ class SubscriptionView extends GetView<SubscriptionController> {
                           Text(
                             'Access all videos, articles & expert insights',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -75,7 +75,7 @@ class SubscriptionView extends GetView<SubscriptionController> {
                 color: theme.scaffoldBackgroundColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     offset: const Offset(0, -4),
                     blurRadius: 16,
                   ),
@@ -157,12 +157,12 @@ class _PlanCard extends GetView<SubscriptionController> {
             ),
             borderRadius: BorderRadius.circular(16),
             color: isSelected
-                ? AppColors.gold.withOpacity(0.08)
+                ? AppColors.gold.withValues(alpha: 0.08)
                 : theme.cardColor,
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.gold.withOpacity(0.2),
+                      color: AppColors.gold.withValues(alpha: 0.2),
                       blurRadius: 16,
                       spreadRadius: 2,
                     ),
@@ -215,7 +215,7 @@ class _PlanCard extends GetView<SubscriptionController> {
                           Text(
                             '${plan.durationDays} days access',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                         ],
@@ -236,7 +236,7 @@ class _PlanCard extends GetView<SubscriptionController> {
                           Text(
                             '\$${plan.pricePerMonth.toStringAsFixed(2)}/mo',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.5),
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                           ),
                       ],

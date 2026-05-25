@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
@@ -116,17 +116,27 @@ class ArticleCard extends StatelessWidget {
         width: 100,
         height: 130,
         fit: BoxFit.cover,
-        placeholder: (_, __) => Shimmer.fromColors(
-          baseColor: Colors.grey.shade800,
-          highlightColor: Colors.grey.shade600,
-          child: Container(width: 100, height: 130, color: Colors.grey.shade800),
-        ),
-        errorWidget: (_, __, ___) => Container(
-          width: 100,
-          height: 130,
-          color: Colors.grey.shade900,
-          child: const Icon(Icons.article_outlined, color: Colors.white54, size: 28),
-        ),
+        placeholder: (context, _) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final base      = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+          final highlight = isDark ? Colors.grey.shade600 : Colors.grey.shade100;
+          return Shimmer.fromColors(
+            baseColor: base,
+            highlightColor: highlight,
+            child: Container(width: 100, height: 130, color: base),
+          );
+        },
+        errorWidget: (context, _, err) {
+          final theme = Theme.of(context);
+          return Container(
+            width: 100,
+            height: 130,
+            color: theme.colorScheme.surfaceContainerHighest,
+            child: Icon(Icons.article_outlined,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                size: 28),
+          );
+        },
       ),
     );
   }
@@ -135,7 +145,7 @@ class ArticleCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: ext.primary.withOpacity(0.15),
+        color: ext.primary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

@@ -24,13 +24,13 @@ class AppColors {
   static const Color blackTextPrimary = Color(0xFFFFFFFF);
   static const Color blackTextSecondary = Color(0xFFAAAAAA);
 
-  // Old Blue Theme (Vintage)
-  static const Color blueBackground = Color(0xFF1B2A4A);
-  static const Color blueSurface = Color(0xFF243560);
-  static const Color blueCard = Color(0xFF1E3060);
-  static const Color blueCardBorder = Color(0xFF2E4080);
-  static const Color blueTextPrimary = Color(0xFFE8EAF6);
-  static const Color blueTextSecondary = Color(0xFF9FA8DA);
+  // Old Blue Theme — Midnight Navy (clean, premium, high contrast)
+  static const Color blueBackground    = Color(0xFF0D1B2A); // deep navy base
+  static const Color blueSurface       = Color(0xFF132234); // card/surface layer
+  static const Color blueCard          = Color(0xFF172840); // elevated card
+  static const Color blueCardBorder    = Color(0xFF1E3452); // subtle border
+  static const Color blueTextPrimary   = Color(0xFFE8F0FB); // clean white-blue
+  static const Color blueTextSecondary = Color(0xFF6B8BAD); // muted steel blue
 
   // Status Colors
   static const Color success = Color(0xFF4CAF50);
@@ -58,5 +58,11 @@ class AppColors {
     colors: [Color(0xFF0A0A0A), Color(0xFF1A1A1A)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
+  );
+
+  static const LinearGradient navyGradient = LinearGradient(
+    colors: [Color(0xFF0D1B2A), Color(0xFF172840)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
   );
 }

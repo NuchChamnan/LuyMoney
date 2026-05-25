@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/utils/responsive_layout.dart';
@@ -28,7 +28,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: AppColors.gold.withOpacity(0.1),
+                          color: AppColors.gold.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
@@ -47,7 +47,7 @@ class ForgotPasswordView extends GetView<AuthController> {
                       Text(
                         'Enter your email address and we\'ll send you a reset link.',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                       ),
                       const SizedBox(height: 32),
                       CustomTextField(
@@ -89,7 +89,7 @@ class ForgotPasswordView extends GetView<AuthController> {
           'Check your inbox and follow the link to reset your password.',
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6)),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
         const SizedBox(height: 40),
         GoldButton(

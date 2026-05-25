@@ -26,11 +26,11 @@ class LockOverlay extends StatelessWidget {
           child: ClipRRect(
             child: BackdropFilter(
               filter: ColorFilter.mode(
-                Colors.black.withOpacity(0.55),
+                Colors.black.withValues(alpha: 0.55),
                 BlendMode.darken,
               ),
               child: Container(
-                color: Colors.black.withOpacity(0.45),
+                color: Colors.black.withValues(alpha: 0.45),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -60,7 +60,7 @@ class LockOverlay extends StatelessWidget {
                       Text(
                         'subscribe_to_access'.tr,
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 13,
                         ),
                       ),

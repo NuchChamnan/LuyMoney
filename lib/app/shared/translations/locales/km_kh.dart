@@ -2,6 +2,8 @@ const Map<String, String> kmKH = {
   // Auth
   'login': 'ចូលប្រព័ន្ធ',
   'register': 'ចុះឈ្មោះ',
+  'welcome_back_luy_money': 'សូមស្វាគមន៍មកកាន់ Luy Money',
+  'select_language': 'ជ្រើសរើសភាសា',
   'forgot_password': 'ភ្លេចពាក្យសម្ងាត់',
   'email': 'អ៊ីមែល',
   'password': 'ពាក្យសម្ងាត់',
@@ -110,7 +112,7 @@ const Map<String, String> kmKH = {
   // Themes
   'theme_white': 'ស',
   'theme_black': 'ខ្មៅ',
-  'theme_old_blue': 'ខៀវចាស់',
+  'theme_old_blue': 'ខៀវវីរៈ',
   'theme_light': 'ភ្លឺ',
   'theme_dark': 'ងងឹត',
   'theme_vintage': 'ប្រពៃណី',

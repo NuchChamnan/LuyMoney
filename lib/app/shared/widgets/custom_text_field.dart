@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../themes/app_themes.dart';
 
 class CustomTextField extends StatefulWidget {
@@ -45,7 +45,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     final ext = Theme.of(context).extension<AppColorExtension>()!;
-    final theme = Theme.of(context);
 
     return TextFormField(
       controller: widget.controller,
@@ -66,7 +65,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         labelText: widget.label,
         hintText: widget.hint,
         labelStyle: TextStyle(color: ext.textSecondary, fontSize: 14),
-        hintStyle: TextStyle(color: ext.textSecondary.withOpacity(0.6)),
+        hintStyle: TextStyle(color: ext.textSecondary.withValues(alpha: 0.6)),
         prefixIcon: widget.prefixIcon != null
             ? IconTheme(
                 data: IconThemeData(color: ext.textSecondary, size: 20),

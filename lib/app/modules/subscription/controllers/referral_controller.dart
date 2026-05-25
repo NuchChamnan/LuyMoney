@@ -109,11 +109,13 @@ class ReferralController extends GetxController {
     final deepLink =
         'https://luymoney.page.link/ref?code=${referralCode.value}';
 
-    Share.share(
-      'Join Luy Money — the financial learning app! '
-      'Use my code ${referralCode.value} to get 7 days free. '
-      'Download: $deepLink',
-      subject: 'Join Luy Money with my referral',
+    SharePlus.instance.share(
+      ShareParams(
+        text: 'Join Luy Money — the financial learning app! '
+            'Use my code ${referralCode.value} to get 7 days free. '
+            'Download: $deepLink',
+        subject: 'Join Luy Money with my referral',
+      ),
     );
   }
 

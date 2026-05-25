@@ -14,9 +14,10 @@ class SubscriptionController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final selectedPlan = Rx<SubscriptionPlanInfo?>(null);
-  final selectedPaymentMethod = PaymentMethod.stripe.obs;
+  final selectedPaymentMethod = PaymentMethod.abaPay.obs;
   final isLoading = false.obs;
   final currentSubscription = Rx<SubscriptionModel?>(null);
+  final paymentConfirmed = false.obs;
 
   @override
   void onInit() {
@@ -31,10 +32,6 @@ class SubscriptionController extends GetxController {
 
   void selectPlan(SubscriptionPlanInfo plan) {
     selectedPlan.value = plan;
-  }
-
-  void selectPaymentMethod(PaymentMethod method) {
-    selectedPaymentMethod.value = method;
   }
 
   String getPlanName(SubscriptionPlan plan) {
@@ -64,8 +61,6 @@ class SubscriptionController extends GetxController {
     if (plan == null) return;
     isLoading.value = true;
     try {
-      // In production: process actual payment via Stripe/ABA/Wing
-      await _simulatePayment();
       await _activateSubscription(plan);
       await _authService.refreshUser();
       _showSuccessSheet();
@@ -77,11 +72,6 @@ class SubscriptionController extends GetxController {
     } finally {
       isLoading.value = false;
     }
-  }
-
-  Future<void> _simulatePayment() async {
-    await Future.delayed(const Duration(seconds: 2));
-    // Real implementation: call Stripe API, ABA Pay, etc.
   }
 
   Future<void> _activateSubscription(SubscriptionPlanInfo plan) async {

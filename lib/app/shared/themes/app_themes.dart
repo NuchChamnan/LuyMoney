@@ -87,11 +87,9 @@ class AppThemes {
         colorScheme: const ColorScheme.light(
           primary: AppColors.gold,
           secondary: AppColors.goldDark,
-          background: AppColors.whiteBackground,
           surface: AppColors.whiteSurface,
           onPrimary: Colors.white,
           onSecondary: Colors.white,
-          onBackground: AppColors.whiteTextPrimary,
           onSurface: AppColors.whiteTextPrimary,
           error: AppColors.error,
         ),
@@ -133,11 +131,9 @@ class AppThemes {
         colorScheme: const ColorScheme.dark(
           primary: AppColors.gold,
           secondary: AppColors.goldLight,
-          background: AppColors.blackBackground,
           surface: AppColors.blackSurface,
           onPrimary: AppColors.blackBackground,
           onSecondary: AppColors.blackBackground,
-          onBackground: AppColors.blackTextPrimary,
           onSurface: AppColors.blackTextPrimary,
           error: AppColors.error,
         ),
@@ -179,11 +175,9 @@ class AppThemes {
         colorScheme: const ColorScheme.dark(
           primary: AppColors.gold,
           secondary: AppColors.goldAccent,
-          background: AppColors.blueBackground,
           surface: AppColors.blueSurface,
           onPrimary: AppColors.blueBackground,
           onSecondary: AppColors.blueBackground,
-          onBackground: AppColors.blueTextPrimary,
           onSurface: AppColors.blueTextPrimary,
           error: AppColors.error,
         ),
@@ -226,7 +220,7 @@ class AppThemes {
       headlineLarge: GoogleFonts.inter(color: color, fontWeight: FontWeight.w700),
       headlineMedium: GoogleFonts.inter(color: color, fontWeight: FontWeight.w600),
       bodyLarge: GoogleFonts.inter(color: color),
-      bodyMedium: GoogleFonts.inter(color: color.withOpacity(0.85)),
+      bodyMedium: GoogleFonts.inter(color: color.withValues(alpha: 0.85)),
     );
   }
 

@@ -2,6 +2,8 @@ const Map<String, String> enUS = {
   // Auth
   'login': 'Login',
   'register': 'Register',
+  'welcome_back_luy_money': 'Welcome back to Luy Money',
+  'select_language': 'Select Language',
   'forgot_password': 'Forgot Password',
   'email': 'Email',
   'password': 'Password',
@@ -110,7 +112,7 @@ const Map<String, String> enUS = {
   // Themes
   'theme_white': 'White',
   'theme_black': 'Black',
-  'theme_old_blue': 'Old Blue',
+  'theme_old_blue': 'Navy',
   'theme_light': 'Light',
   'theme_dark': 'Dark',
   'theme_vintage': 'Vintage',

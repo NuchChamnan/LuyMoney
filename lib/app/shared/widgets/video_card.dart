@@ -380,11 +380,15 @@ class _CarouselCard extends StatelessWidget {
 class _ThumbPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bg   = isDark ? Colors.grey.shade900 : Colors.grey.shade200;
+    final icon = isDark
+        ? Colors.white.withValues(alpha: 0.3)
+        : Colors.grey.shade500;
     return Container(
-      color: Colors.grey.shade900,
+      color: bg,
       child: Center(
-        child: Icon(Icons.play_circle_outline,
-            color: Colors.white.withValues(alpha: 0.3), size: 40),
+        child: Icon(Icons.play_circle_outline, color: icon, size: 40),
       ),
     );
   }

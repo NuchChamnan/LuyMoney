@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/widgets/gold_button.dart';
 import '../../../shared/widgets/custom_text_field.dart';
-import '../../../routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 
 class RegisterView extends GetView<AuthController> {
@@ -36,7 +35,7 @@ class RegisterView extends GetView<AuthController> {
                 Text(
                   'Join thousands learning financial freedom',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 32),
