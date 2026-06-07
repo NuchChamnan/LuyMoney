@@ -7,6 +7,7 @@ class UserModel {
   final String email;
   final String? phone;
   final String? avatarUrl;
+  final String? avatarBase64;
   final String role; // 'user' | 'admin'
   final SubscriptionModel? subscription;
   final DateTime createdAt;
@@ -18,6 +19,7 @@ class UserModel {
     required this.email,
     this.phone,
     this.avatarUrl,
+    this.avatarBase64,
     this.role = 'user',
     this.subscription,
     required this.createdAt,
@@ -35,6 +37,7 @@ class UserModel {
       email: data['email'] ?? '',
       phone: data['phone'],
       avatarUrl: data['avatarUrl'],
+      avatarBase64: data['avatarBase64'],
       role: data['role'] ?? 'user',
       subscription: subscription ??
           (data['subscription'] != null
@@ -52,6 +55,7 @@ class UserModel {
     'email': email,
     'phone': phone,
     'avatarUrl': avatarUrl,
+    'avatarBase64': avatarBase64,
     'role': role,
     'biometricEnabled': biometricEnabled,
     'createdAt': Timestamp.fromDate(createdAt),
@@ -61,6 +65,7 @@ class UserModel {
     String? name,
     String? phone,
     String? avatarUrl,
+    String? avatarBase64,
     bool? biometricEnabled,
     SubscriptionModel? subscription,
   }) {
@@ -70,6 +75,7 @@ class UserModel {
       email: email,
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      avatarBase64: avatarBase64 ?? this.avatarBase64,
       role: role,
       subscription: subscription ?? this.subscription,
       createdAt: createdAt,

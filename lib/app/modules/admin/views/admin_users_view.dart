@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../shared/themes/app_themes.dart';
 import '../../../data/models/user_model.dart';
@@ -99,7 +101,9 @@ class _UserRow extends GetView<AdminController> {
     final sub = user.subscription;
     final hasActive = sub != null && !sub.isExpired;
 
-    return Container(
+    return GestureDetector(
+      onTap: () => _showUserDetailSheet(context),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -115,13 +119,16 @@ class _UserRow extends GetView<AdminController> {
               CircleAvatar(
                 radius: 20,
                 backgroundColor: ext.primary.withValues(alpha: 0.2),
-                child: Text(
-                  user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                  style: TextStyle(
-                    color: ext.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
+                backgroundImage: _avatarImage(user),
+                child: _avatarImage(user) == null
+                    ? Text(
+                        user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+                        style: TextStyle(
+                          color: ext.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      )
+                    : null,
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -219,6 +226,216 @@ class _UserRow extends GetView<AdminController> {
           ),
         ],
       ),
+      ), // Container
+    ); // GestureDetector
+  }
+
+  ImageProvider? _avatarImage(UserModel u) {
+    if (u.avatarBase64 != null && u.avatarBase64!.isNotEmpty) {
+      return MemoryImage(base64Decode(u.avatarBase64!));
+    }
+    if (u.avatarUrl != null && u.avatarUrl!.isNotEmpty) {
+      return NetworkImage(u.avatarUrl!);
+    }
+    return null;
+  }
+
+  void _showUserDetailSheet(BuildContext context) {
+    final ext = Theme.of(context).extension<AppColorExtension>()!;
+    final sub = user.subscription;
+    final hasActive = sub != null && !sub.isExpired;
+
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        decoration: BoxDecoration(
+          color: ext.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle
+              Center(
+                child: Container(
+                  width: 40, height: 4,
+                  decoration: BoxDecoration(
+                    color: ext.border,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Avatar + name + role
+              Center(
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 44,
+                      backgroundColor: ext.primary.withValues(alpha: 0.2),
+                      backgroundImage: _avatarImage(user),
+                      child: _avatarImage(user) == null
+                          ? Text(
+                              user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+                              style: TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: ext.primary,
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      user.name,
+                      style: TextStyle(
+                        color: ext.textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _StatusBadge(
+                          label: user.isAdmin ? '👑 Admin' : '👤 User',
+                          color: user.isAdmin ? const Color(0xFF6C63FF) : Colors.blueGrey,
+                        ),
+                        const SizedBox(width: 8),
+                        _StatusBadge(
+                          label: hasActive ? 'Active' : sub != null ? 'Expired' : 'Free',
+                          color: hasActive ? Colors.green : sub != null ? Colors.orange : Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Info rows
+              _InfoRow(icon: Icons.email_outlined, label: 'Email', value: user.email, ext: ext),
+              const SizedBox(height: 12),
+              _InfoRow(
+                icon: Icons.phone_outlined,
+                label: 'Phone',
+                value: (user.phone != null && user.phone!.isNotEmpty) ? user.phone! : '—',
+                ext: ext,
+              ),
+              const SizedBox(height: 12),
+
+              // Password row with reset button
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: ext.card,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: ext.border),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36, height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.purple.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.lock_outline, color: Colors.purple, size: 18),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Password', style: TextStyle(color: ext.textSecondary, fontSize: 11)),
+                          const SizedBox(height: 2),
+                          Text('••••••••', style: TextStyle(color: ext.textPrimary, fontSize: 16, letterSpacing: 3)),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Get.back();
+                        controller.sendPasswordResetEmail(user.email);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
+                        ),
+                        child: const Text(
+                          'Reset',
+                          style: TextStyle(color: Colors.purple, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              if (sub != null) ...[
+                const SizedBox(height: 12),
+                _InfoRow(
+                  icon: Icons.calendar_today_outlined,
+                  label: 'Subscription expires',
+                  value: '${DateHelper.formatDate(sub.expiryDate)}  •  ${sub.daysRemaining} days left',
+                  ext: ext,
+                ),
+              ],
+
+              const SizedBox(height: 24),
+              Divider(color: ext.border),
+              const SizedBox(height: 12),
+
+              // Action buttons
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _ActionButton(
+                    label: 'Extend',
+                    icon: Icons.add_circle_outline,
+                    color: ext.primary,
+                    onTap: () { Get.back(); _showExtendDialog(context); },
+                  ),
+                  _ActionButton(
+                    label: 'Deactivate',
+                    icon: Icons.block,
+                    color: Colors.orange,
+                    onTap: () { Get.back(); controller.deactivateUser(user); },
+                  ),
+                  if (!user.isAdmin)
+                    _ActionButton(
+                      label: 'Make Admin',
+                      icon: Icons.admin_panel_settings_outlined,
+                      color: const Color(0xFF6C63FF),
+                      onTap: () { Get.back(); _showPromoteDialog(context); },
+                    )
+                  else
+                    _ActionButton(
+                      label: 'Remove Admin',
+                      icon: Icons.person_outlined,
+                      color: Colors.deepOrange,
+                      onTap: () { Get.back(); _showDemoteDialog(context); },
+                    ),
+                  _ActionButton(
+                    label: 'Delete',
+                    icon: Icons.delete_outline,
+                    color: Colors.red,
+                    onTap: () { Get.back(); _showDeleteDialog(context); },
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      isScrollControlled: true,
     );
   }
 
@@ -375,6 +592,61 @@ class _ActionButton extends StatelessWidget {
             Text(label, style: TextStyle(color: color, fontSize: 12)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final AppColorExtension ext;
+
+  const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.ext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: ext.card,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: ext.border),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: ext.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: ext.primary, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: TextStyle(color: ext.textSecondary, fontSize: 11)),
+                const SizedBox(height: 2),
+                Text(value,
+                    style: TextStyle(
+                        color: ext.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../data/models/user_model.dart';
@@ -208,6 +209,15 @@ class AdminController extends GetxController {
       await fetchUsers();
     } catch (e) {
       AppSnackbar.error('Error: $e');
+    }
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      AppSnackbar.success('Password reset email sent to $email');
+    } catch (e) {
+      AppSnackbar.error('Failed to send reset email: $e');
     }
   }
 

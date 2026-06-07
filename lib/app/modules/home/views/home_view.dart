@@ -69,12 +69,21 @@ class HomeView extends GetView<HomeController> {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                     itemCount: controller.recentVideos.length,
-                    itemBuilder: (_, i) => VideoCard(
-                      video: controller.recentVideos[i],
-                      horizontal: true,
-                      onTap: () => Get.toNamed(Routes.VIDEO_DETAIL,
-                          arguments: controller.recentVideos[i]),
-                    ),
+                    itemBuilder: (_, i) {
+                      final v = controller.recentVideos[i];
+                      return VideoCard(
+                        video: v,
+                        horizontal: true,
+                        onTap: () {
+                          final auth = Get.find<AuthService>();
+                          if (v.isPremium && !auth.hasActiveSubscription) {
+                            Get.toNamed(Routes.SUBSCRIPTION);
+                          } else {
+                            Get.toNamed(Routes.VIDEO_DETAIL, arguments: v);
+                          }
+                        },
+                      );
+                    },
                   ),
                 );
               }),
@@ -106,8 +115,16 @@ class HomeView extends GetView<HomeController> {
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                             child: ArticleCard(
                               article: a,
-                              onTap: () => Get.toNamed(Routes.ARTICLE_DETAIL,
-                                  arguments: a),
+                              onTap: () {
+                                final auth = Get.find<AuthService>();
+                                if (a.isPremium &&
+                                    !auth.hasActiveSubscription) {
+                                  Get.toNamed(Routes.SUBSCRIPTION);
+                                } else {
+                                  Get.toNamed(Routes.ARTICLE_DETAIL,
+                                      arguments: a);
+                                }
+                              },
                             ),
                           ))
                       .toList(),
@@ -565,7 +582,7 @@ class _ShimmerCarousel extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           itemCount: 3,
-          itemBuilder: (_, __) => Container(
+          itemBuilder: (_, i) => Container(
             width: 200,
             height: 210,
             margin: const EdgeInsets.only(right: 12),

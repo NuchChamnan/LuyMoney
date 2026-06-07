@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,8 +35,16 @@ class ProfileView extends GetView<SettingsController> {
         // Use Firebase Auth as fallback so page never blocks on Firestore
         final displayName = user?.name ?? firebaseUser?.displayName ?? '';
         final email = user?.email ?? firebaseUser?.email ?? '';
+        final avatarBase64 = user?.avatarBase64;
         final avatarUrl = user?.avatarUrl ?? '';
         final isAdmin = user?.isAdmin ?? false;
+
+        ImageProvider? avatarImage;
+        if (avatarBase64 != null && avatarBase64.isNotEmpty) {
+          avatarImage = MemoryImage(base64Decode(avatarBase64));
+        } else if (avatarUrl.isNotEmpty) {
+          avatarImage = NetworkImage(avatarUrl);
+        }
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -49,10 +59,8 @@ class ProfileView extends GetView<SettingsController> {
                       CircleAvatar(
                         radius: context.rSize(52),
                         backgroundColor: ext.primary.withValues(alpha: 0.2),
-                        backgroundImage: avatarUrl.isNotEmpty
-                            ? NetworkImage(avatarUrl)
-                            : null,
-                        child: avatarUrl.isEmpty
+                        backgroundImage: avatarImage,
+                        child: avatarImage == null
                             ? Text(
                                 displayName.isNotEmpty
                                     ? displayName[0].toUpperCase()

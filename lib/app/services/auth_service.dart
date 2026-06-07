@@ -108,13 +108,19 @@ class AuthService extends GetxService {
     currentUser.value = null;
   }
 
-  Future<void> updateUserProfile({String? name, String? phone, String? avatarUrl}) async {
+  Future<void> updateUserProfile({
+    String? name,
+    String? phone,
+    String? avatarUrl,
+    String? avatarBase64,
+  }) async {
     final uid = _auth.currentUser?.uid;
     if (uid == null) return;
     final updates = <String, dynamic>{};
     if (name != null) updates['name'] = name;
     if (phone != null) updates['phone'] = phone;
     if (avatarUrl != null) updates['avatarUrl'] = avatarUrl;
+    if (avatarBase64 != null) updates['avatarBase64'] = avatarBase64;
     await _firestore.collection('users').doc(uid).update(updates);
     await _loadUserData(uid);
   }

@@ -1,17 +1,17 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/models/subscription_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
-import '../../../services/notification_service.dart';
+import '../../../shared/constants/app_colors.dart';
+import '../../../shared/themes/app_themes.dart';
 
 class SubscriptionController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
-  final NotificationService _notificationService =
-      Get.find<NotificationService>();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  static const String _adminTelegramUrl = 'https://t.me/Noch_Chamnan';
 
   final selectedPlan = Rx<SubscriptionPlanInfo?>(null);
   final selectedPaymentMethod = PaymentMethod.abaPay.obs;
@@ -23,7 +23,6 @@ class SubscriptionController extends GetxController {
   void onInit() {
     super.onInit();
     currentSubscription.value = _authService.currentUser.value?.subscription;
-    // Pre-select popular plan
     selectedPlan.value = subscriptionPlans.firstWhere(
       (p) => p.badge == 'popular',
       orElse: () => subscriptionPlans.first,
@@ -56,92 +55,238 @@ class SubscriptionController extends GetxController {
     Get.toNamed(Routes.PAYMENT);
   }
 
+  // Called after user confirms they have paid via ABA QR
   Future<void> processPayment() async {
     final plan = selectedPlan.value;
     if (plan == null) return;
-    isLoading.value = true;
-    try {
-      await _activateSubscription(plan);
-      await _authService.refreshUser();
-      _showSuccessSheet();
-    } catch (e) {
-      Get.snackbar('payment_failed'.tr, e.toString(),
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red,
-          colorText: Colors.white);
-    } finally {
-      isLoading.value = false;
-    }
+    _showTelegramInstructionSheet(plan);
   }
 
-  Future<void> _activateSubscription(SubscriptionPlanInfo plan) async {
-    final uid = _authService.currentUser.value?.id;
-    if (uid == null) return;
+  // ── Telegram Instruction Sheet ─────────────────────────────────────────────
+  void _showTelegramInstructionSheet(SubscriptionPlanInfo plan) {
+    final ctx = Get.context!;
+    final ext = Theme.of(ctx).extension<AppColorExtension>()!;
+    final theme = Theme.of(ctx);
 
-    final now = DateTime.now();
-    final expiryDate = now.add(Duration(days: plan.durationDays));
-
-    final subData = {
-      'userId': uid,
-      'planId': plan.plan.name,
-      'startDate': Timestamp.fromDate(now),
-      'expiryDate': Timestamp.fromDate(expiryDate),
-      'isActive': true,
-      'paymentMethod': selectedPaymentMethod.value.name,
-      'transactionId': 'TXN_${DateTime.now().millisecondsSinceEpoch}',
-      'amountPaid': plan.price,
-    };
-
-    // Save to Firestore
-    final ref = await _firestore
-        .collection('users')
-        .doc(uid)
-        .collection('subscriptions')
-        .add(subData);
-
-    // Update user document
-    await _firestore.collection('users').doc(uid).update({
-      'subscription': {'id': ref.id, ...subData},
-    });
-
-    // Schedule notifications
-    await _notificationService.scheduleExpiryReminders(expiryDate);
-
-    currentSubscription.value = SubscriptionModel.fromMap({
-      'id': ref.id,
-      ...subData
-    });
-  }
-
-  void _showSuccessSheet() {
     Get.bottomSheet(
       Container(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
         decoration: BoxDecoration(
-          color: Theme.of(Get.context!).scaffoldBackgroundColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          color: ext.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle_rounded, color: Color(0xFF4CAF50), size: 72),
-            const SizedBox(height: 16),
-            Text('payment_successful'.tr,
-                style: Theme.of(Get.context!).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 8),
-            Text('payment_confirmation'.tr,
-                textAlign: TextAlign.center,
-                style: Theme.of(Get.context!).textTheme.bodyMedium),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () => Get.offAllNamed(Routes.HOME),
-              child: Text('done'.tr),
+            // Handle
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: ext.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Icon
+            Container(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
+                gradient: AppColors.goldGradient,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.send_rounded,
+                  color: Colors.black, size: 34),
+            ),
+            const SizedBox(height: 20),
+
+            // Title
+            Text(
+              'ជំហានបន្ទាប់',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: ext.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Instruction card
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.gold.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                    color: AppColors.gold.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Plan summary
+                  Row(children: [
+                    const Icon(Icons.receipt_long_outlined,
+                        color: AppColors.gold, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${getPlanName(plan.plan)}  —  \$${plan.price.toStringAsFixed(0)}',
+                      style: TextStyle(
+                        color: AppColors.gold,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 14),
+
+                  // Steps
+                  _Step(
+                    number: '1',
+                    text: 'ថតរូបភាពបង្ហាញការទូទាត់ (Screenshot) ពី ABA Mobile',
+                    ext: ext,
+                  ),
+                  const SizedBox(height: 10),
+                  _Step(
+                    number: '2',
+                    text: 'ផ្ញើ Screenshot ទៅ Admin Telegram ខាងក្រោម',
+                    ext: ext,
+                  ),
+                  const SizedBox(height: 10),
+                  _Step(
+                    number: '3',
+                    text: 'Admin នឹង Activate គណនីរបស់អ្នក ក្នុងពេលឆាប់ៗ',
+                    ext: ext,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Telegram button
+            GestureDetector(
+              onTap: _openTelegram,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0088CC), Color(0xFF00AEFF)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF0088CC).withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.telegram, color: Colors.white, size: 24),
+                    SizedBox(width: 10),
+                    Text(
+                      'ទំនាក់ទំនង Admin Telegram',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Back to home
+            TextButton(
+              onPressed: () {
+                Get.back(); // close sheet
+                Get.offAllNamed(Routes.HOME);
+              },
+              child: Text(
+                'ត្រឡប់ទៅទំព័រដើម',
+                style: TextStyle(
+                  color: ext.textSecondary,
+                  fontSize: 14,
+                ),
+              ),
             ),
           ],
         ),
       ),
       isDismissible: false,
+      isScrollControlled: true,
+    );
+  }
+
+  Future<void> _openTelegram() async {
+    final uri = Uri.parse(_adminTelegramUrl);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      Get.snackbar(
+        'Error',
+        'Could not open Telegram. Please install Telegram first.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+}
+
+// ── Step Widget ───────────────────────────────────────────────────────────────
+class _Step extends StatelessWidget {
+  final String number;
+  final String text;
+  final AppColorExtension ext;
+
+  const _Step({
+    required this.number,
+    required this.text,
+    required this.ext,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: const BoxDecoration(
+            gradient: AppColors.goldGradient,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              number,
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.w800,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: ext.textPrimary,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

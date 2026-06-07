@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -560,56 +562,68 @@ class _ProfileHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<SettingsController>(
-      builder: (ctrl) {
-        final user = Get.find<AuthService>().currentUser.value;
-        final initial = user?.name.isNotEmpty == true
-            ? user!.name[0].toUpperCase()
-            : 'U';
+    return Obx(() {
+      final ctrl = Get.find<SettingsController>();
+      final user = Get.find<AuthService>().currentUser.value;
+      final initial = user?.name.isNotEmpty == true
+          ? user!.name[0].toUpperCase()
+          : 'U';
 
-        return Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppColors.gold.withValues(alpha: 0.15),
-                AppColors.gold.withValues(alpha: 0.04),
-              ],
-            ),
+      ImageProvider? avatarImage;
+      if (user?.avatarBase64 != null && user!.avatarBase64!.isNotEmpty) {
+        avatarImage = MemoryImage(base64Decode(user.avatarBase64!));
+      } else if (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty) {
+        avatarImage = NetworkImage(user.avatarUrl!);
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.gold.withValues(alpha: 0.15),
+              AppColors.gold.withValues(alpha: 0.04),
+            ],
           ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 48, 20, 16),
-              child: GestureDetector(
-                onTap: ctrl.navigateToProfile,
-                child: Row(children: [
-                  // Avatar
-                  Container(
-                    width: 68,
-                    height: 68,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: AppColors.goldGradient,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.gold.withValues(alpha: 0.4),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        initial,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 26,
-                        ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 48, 20, 16),
+            child: GestureDetector(
+              onTap: ctrl.navigateToProfile,
+              child: Row(children: [
+                // Avatar
+                Container(
+                  width: 68,
+                  height: 68,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: avatarImage == null ? AppColors.goldGradient : null,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.gold.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
+                    ],
                   ),
+                  child: avatarImage != null
+                      ? CircleAvatar(
+                          radius: 34,
+                          backgroundImage: avatarImage,
+                        )
+                      : Center(
+                          child: Text(
+                            initial,
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 26,
+                            ),
+                          ),
+                        ),
+                ),
                   const SizedBox(width: 16),
                   // Name & Email
                   Expanded(
@@ -654,8 +668,7 @@ class _ProfileHeader extends StatelessWidget {
             ),
           ),
         );
-      },
-    );
+      });
   }
 }
 

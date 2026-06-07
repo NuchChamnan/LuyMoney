@@ -21,6 +21,7 @@ class VideoCard extends StatelessWidget {
   final VoidCallback? onBookmark;
   final VoidCallback? onTap;
   final bool horizontal; // true = small card for home carousel
+  final bool showChannelInfo; // false = hide avatar + channel name row
 
   const VideoCard({
     super.key,
@@ -29,6 +30,7 @@ class VideoCard extends StatelessWidget {
     this.onBookmark,
     this.onTap,
     this.horizontal = false,
+    this.showChannelInfo = true,
   });
 
   @override
@@ -40,6 +42,7 @@ class VideoCard extends StatelessWidget {
             isBookmarked: isBookmarked,
             onBookmark: onBookmark,
             onTap: onTap,
+            showChannelInfo: showChannelInfo,
           );
   }
 }
@@ -50,12 +53,14 @@ class _ListCard extends StatelessWidget {
   final bool isBookmarked;
   final VoidCallback? onBookmark;
   final VoidCallback? onTap;
+  final bool showChannelInfo;
 
   const _ListCard({
     required this.video,
     required this.isBookmarked,
     this.onBookmark,
     this.onTap,
+    this.showChannelInfo = true,
   });
 
   @override
@@ -170,18 +175,20 @@ class _ListCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Channel avatar
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      gradient: AppColors.goldGradient,
-                      shape: BoxShape.circle,
+                  // Channel avatar (hidden when showChannelInfo is false)
+                  if (showChannelInfo) ...[
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        gradient: AppColors.goldGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.monetization_on_rounded,
+                          color: Colors.black, size: 20),
                     ),
-                    child: const Icon(Icons.monetization_on_rounded,
-                        color: Colors.black, size: 20),
-                  ),
-                  const SizedBox(width: 10),
+                    const SizedBox(width: 10),
+                  ],
 
                   // Title + meta
                   Expanded(
@@ -200,58 +207,65 @@ class _ListCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              'Luy Money',
-                              style: TextStyle(
-                                  color: ext.textSecondary, fontSize: 12),
-                            ),
-                            const SizedBox(width: 4),
-                            Text('•',
+                        if (showChannelInfo)
+                          Row(
+                            children: [
+                              Text(
+                                'Luy Money',
                                 style: TextStyle(
-                                    color: ext.textSecondary, fontSize: 12)),
-                            const SizedBox(width: 4),
-                            _CategoryChip(
-                                label: video.category, ext: ext),
-                            const SizedBox(width: 4),
-                            Text('•',
-                                style: TextStyle(
-                                    color: ext.textSecondary, fontSize: 12)),
-                            const SizedBox(width: 4),
-                            Icon(Icons.remove_red_eye_outlined,
-                                size: 12, color: ext.textSecondary),
-                            const SizedBox(width: 2),
-                            Text('${video.viewCount}',
-                                style: TextStyle(
-                                    color: ext.textSecondary, fontSize: 12)),
-                          ],
-                        ),
+                                    color: ext.textSecondary, fontSize: 12),
+                              ),
+                              const SizedBox(width: 4),
+                              Text('•',
+                                  style: TextStyle(
+                                      color: ext.textSecondary, fontSize: 12)),
+                              const SizedBox(width: 4),
+                              _CategoryChip(label: video.category, ext: ext),
+                              const SizedBox(width: 4),
+                              Text('•',
+                                  style: TextStyle(
+                                      color: ext.textSecondary, fontSize: 12)),
+                              const SizedBox(width: 4),
+                              Icon(Icons.remove_red_eye_outlined,
+                                  size: 12, color: ext.textSecondary),
+                              const SizedBox(width: 2),
+                              Text('${video.viewCount}',
+                                  style: TextStyle(
+                                      color: ext.textSecondary, fontSize: 12)),
+                            ],
+                          )
+                        else
+                          Row(
+                            children: [
+                              Icon(Icons.remove_red_eye_outlined,
+                                  size: 12, color: ext.textSecondary),
+                              const SizedBox(width: 2),
+                              Text('${video.viewCount}',
+                                  style: TextStyle(
+                                      color: ext.textSecondary, fontSize: 12)),
+                            ],
+                          ),
                       ],
                     ),
                   ),
 
-                  // Bookmark + more
-                  Column(
-                    children: [
-                      if (onBookmark != null)
-                        GestureDetector(
-                          onTap: onBookmark,
-                          child: Padding(
-                            padding: const EdgeInsets.all(4),
-                            child: Icon(
-                              isBookmarked
-                                  ? Icons.bookmark
-                                  : Icons.bookmark_border,
-                              size: 20,
-                              color: isBookmarked
-                                  ? AppColors.gold
-                                  : ext.textSecondary,
-                            ),
-                          ),
+                  // Bookmark
+                  if (onBookmark != null)
+                    GestureDetector(
+                      onTap: onBookmark,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          isBookmarked
+                              ? Icons.bookmark
+                              : Icons.bookmark_border,
+                          size: 20,
+                          color: isBookmarked
+                              ? AppColors.gold
+                              : ext.textSecondary,
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
                 ],
               ),
             ),

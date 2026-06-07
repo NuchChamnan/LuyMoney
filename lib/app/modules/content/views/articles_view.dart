@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../routes/app_routes.dart';
+import '../../../services/auth_service.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/widgets/article_card.dart';
 import '../../../shared/widgets/category_chips.dart';
@@ -77,6 +79,15 @@ class ArticlesView extends GetView<ContentController> {
                       article: article,
                       onBookmark: () =>
                           controller.toggleArticleBookmark(article.id),
+                      onTap: () {
+                        final auth = Get.find<AuthService>();
+                        if (article.isPremium && !auth.hasActiveSubscription) {
+                          Get.toNamed(Routes.SUBSCRIPTION);
+                        } else {
+                          Get.toNamed(Routes.ARTICLE_DETAIL,
+                              arguments: article);
+                        }
+                      },
                     ),
                   );
                 },

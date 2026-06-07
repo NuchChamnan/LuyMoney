@@ -4,6 +4,7 @@ const Map<String, String> enUS = {
   'register': 'Register',
   'welcome_back_luy_money': 'Welcome back to Luy Money',
   'select_language': 'Select Language',
+  'select_theme': 'Select Theme',
   'forgot_password': 'Forgot Password',
   'email': 'Email',
   'password': 'Password',

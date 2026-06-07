@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../../../data/models/content_model.dart';
+import '../../../routes/app_routes.dart';
+import '../../../services/auth_service.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/themes/app_themes.dart';
 import '../../../shared/widgets/video_card.dart';
@@ -77,6 +78,21 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
           Expanded(
             child: CustomScrollView(
               slivers: [
+                // Description (below player, before title)
+                if (widget.video.description.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: _DescriptionSection(
+                      video: widget.video,
+                      ext: ext,
+                      expanded: _descExpanded,
+                      onToggle: () =>
+                          setState(() => _descExpanded = !_descExpanded),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                      child: Divider(height: 1, color: ext.border)),
+                ],
+
                 // Title + close
                 SliverToBoxAdapter(
                   child: _TitleSection(
@@ -123,19 +139,6 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                       _likeCount += _liked ? 1 : -1;
                     }),
                     onMore: () => _showMoreSheet(context, ext),
-                  ),
-                ),
-
-                SliverToBoxAdapter(child: Divider(height: 1, color: ext.border)),
-
-                // Description + category chip
-                SliverToBoxAdapter(
-                  child: _DescriptionSection(
-                    video: widget.video,
-                    ext: ext,
-                    expanded: _descExpanded,
-                    onToggle: () =>
-                        setState(() => _descExpanded = !_descExpanded),
                   ),
                 ),
 
@@ -218,12 +221,21 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: VideoCard(
                             video: filtered[i],
-                            onTap: () => Get.off(
-                              () => const VideoDetailView(),
-                              arguments: filtered[i],
-                            ),
-                            onBookmark: () => ctrl
-                                .toggleVideoBookmark(filtered[i].id),
+                            showChannelInfo: false,
+                            onTap: () {
+                              final auth = Get.find<AuthService>();
+                              if (filtered[i].isPremium &&
+                                  !auth.hasActiveSubscription) {
+                                Get.toNamed(Routes.SUBSCRIPTION);
+                              } else {
+                                Get.off(
+                                  () => const VideoDetailView(),
+                                  arguments: filtered[i],
+                                );
+                              }
+                            },
+                            onBookmark: () =>
+                                ctrl.toggleVideoBookmark(filtered[i].id),
                           ),
                         ),
                         childCount: filtered.length,
@@ -415,64 +427,44 @@ class _DescriptionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (video.description.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Category chip
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            decoration: BoxDecoration(
-              gradient: AppColors.goldGradient,
-              borderRadius: BorderRadius.circular(20),
+          AnimatedCrossFade(
+            firstChild: Text(
+              video.description,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  color: ext.textSecondary, fontSize: 14, height: 1.6),
             ),
-            child: Text(
-              video.category.capitalize!,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
+            secondChild: Text(
+              video.description,
+              style: TextStyle(
+                  color: ext.textSecondary, fontSize: 14, height: 1.6),
             ),
+            crossFadeState: expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 250),
           ),
-
-          if (video.description.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            AnimatedCrossFade(
-              firstChild: Text(
-                video.description,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                    color: ext.textSecondary, fontSize: 14, height: 1.6),
-              ),
-              secondChild: Text(
-                video.description,
-                style: TextStyle(
-                    color: ext.textSecondary, fontSize: 14, height: 1.6),
-              ),
-              crossFadeState: expanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 250),
-            ),
-            GestureDetector(
-              onTap: onToggle,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                  expanded ? 'Show less ▲' : 'Show more ▼',
-                  style: const TextStyle(
-                    color: AppColors.gold,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+          GestureDetector(
+            onTap: onToggle,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                expanded ? 'Show less ▲' : 'Show more ▼',
+                style: const TextStyle(
+                  color: AppColors.gold,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
                 ),
               ),
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -530,38 +522,6 @@ class _ActionBar extends StatelessWidget {
               ext: ext,
             );
           }),
-
-          // Share
-          _ActionBtn(
-            icon: Icons.share_outlined,
-            label: 'Share',
-            color: ext.textSecondary,
-            onTap: () => SharePlus.instance.share(
-              ShareParams(
-                text: '🎬 ${video.title}\n\nWatch on Luy Money!',
-                subject: video.title,
-              ),
-            ),
-            ext: ext,
-          ),
-
-          // Download (coming soon)
-          _ActionBtn(
-            icon: Icons.download_outlined,
-            label: 'Download',
-            color: ext.textSecondary,
-            onTap: () => Get.snackbar(
-              'Coming Soon',
-              'Download feature will be available soon.',
-              snackPosition: SnackPosition.BOTTOM,
-              backgroundColor: ext.surface,
-              colorText: ext.textPrimary,
-              margin: const EdgeInsets.all(12),
-              borderRadius: 12,
-              duration: const Duration(seconds: 2),
-            ),
-            ext: ext,
-          ),
 
           // More
           _ActionBtn(
@@ -705,19 +665,6 @@ class _MoreSheet extends StatelessWidget {
           const SizedBox(height: 8),
 
           _SheetTile(
-            icon: Icons.share_outlined,
-            iconColor: Colors.blue,
-            title: 'Share Video',
-            ext: ext,
-            onTap: () {
-              Get.back();
-              SharePlus.instance.share(ShareParams(
-                text: '🎬 ${video.title}\n\nWatch on Luy Money!',
-                subject: video.title,
-              ));
-            },
-          ),
-          _SheetTile(
             icon: Icons.link_rounded,
             iconColor: Colors.teal,
             title: 'Copy Link',
@@ -744,22 +691,6 @@ class _MoreSheet extends StatelessWidget {
             onTap: () {
               Get.back();
               Get.snackbar('Coming Soon', 'Playlist feature will be available soon.',
-                  snackPosition: SnackPosition.BOTTOM,
-                  backgroundColor: ext.surface,
-                  colorText: ext.textPrimary,
-                  margin: const EdgeInsets.all(12),
-                  borderRadius: 12,
-                  duration: const Duration(seconds: 2));
-            },
-          ),
-          _SheetTile(
-            icon: Icons.download_outlined,
-            iconColor: Colors.green,
-            title: 'Download Video',
-            ext: ext,
-            onTap: () {
-              Get.back();
-              Get.snackbar('Coming Soon', 'Download feature will be available soon.',
                   snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: ext.surface,
                   colorText: ext.textPrimary,

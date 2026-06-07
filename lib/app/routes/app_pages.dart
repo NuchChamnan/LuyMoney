@@ -35,7 +35,6 @@ import '../modules/admin/views/admin_notifications_view.dart';
 
 import 'app_routes.dart';
 import 'middlewares/auth_middleware.dart';
-import 'middlewares/subscription_middleware.dart';
 import 'middlewares/admin_middleware.dart';
 
 class AppPages {
@@ -58,13 +57,13 @@ class AppPages {
         binding: SubscriptionBinding(), middlewares: [AuthMiddleware()]),
 
     GetPage(name: Routes.VIDEOS, page: () => const VideosView(),
-        binding: ContentBinding(), middlewares: [AuthMiddleware(), SubscriptionMiddleware()]),
+        binding: ContentBinding(), middlewares: [AuthMiddleware()]),
     GetPage(name: Routes.VIDEO_DETAIL, page: () => const VideoDetailView(),
-        binding: ContentBinding(), middlewares: [AuthMiddleware(), SubscriptionMiddleware()]),
+        binding: ContentBinding(), middlewares: [AuthMiddleware()]),
     GetPage(name: Routes.ARTICLES, page: () => const ArticlesView(),
-        binding: ContentBinding(), middlewares: [AuthMiddleware(), SubscriptionMiddleware()]),
+        binding: ContentBinding(), middlewares: [AuthMiddleware()]),
     GetPage(name: Routes.ARTICLE_DETAIL, page: () => const ArticleDetailView(),
-        binding: ContentBinding(), middlewares: [AuthMiddleware(), SubscriptionMiddleware()]),
+        binding: ContentBinding(), middlewares: [AuthMiddleware()]),
 
     GetPage(name: Routes.SUPPORT, page: () => const SupportView(),
         binding: SupportBinding(), middlewares: [AuthMiddleware()]),

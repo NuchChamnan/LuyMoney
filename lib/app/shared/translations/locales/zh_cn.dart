@@ -4,6 +4,7 @@ const Map<String, String> zhCN = {
   'register': '注册',
   'welcome_back_luy_money': '欢迎回到 Luy Money',
   'select_language': '选择语言',
+  'select_theme': '选择主题',
   'forgot_password': '忘记密码',
   'email': '邮箱',
   'password': '密码',

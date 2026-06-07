@@ -4,6 +4,7 @@ const Map<String, String> kmKH = {
   'register': 'ចុះឈ្មោះ',
   'welcome_back_luy_money': 'សូមស្វាគមន៍មកកាន់ Luy Money',
   'select_language': 'ជ្រើសរើសភាសា',
+  'select_theme': 'ជ្រើសរើសរូបរាង',
   'forgot_password': 'ភ្លេចពាក្យសម្ងាត់',
   'email': 'អ៊ីមែល',
   'password': 'ពាក្យសម្ងាត់',

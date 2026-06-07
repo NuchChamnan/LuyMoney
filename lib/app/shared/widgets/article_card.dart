@@ -2,6 +2,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
+import '../constants/app_colors.dart';
 import '../themes/app_themes.dart';
 import '../../data/models/content_model.dart';
 import '../../routes/app_routes.dart';
@@ -111,32 +112,77 @@ class ArticleCard extends StatelessWidget {
   Widget _buildCover() {
     return ClipRRect(
       borderRadius: const BorderRadius.horizontal(left: Radius.circular(14)),
-      child: CachedNetworkImage(
-        imageUrl: article.coverImageUrl,
+      child: SizedBox(
         width: 100,
         height: 130,
-        fit: BoxFit.cover,
-        placeholder: (context, _) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          final base      = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
-          final highlight = isDark ? Colors.grey.shade600 : Colors.grey.shade100;
-          return Shimmer.fromColors(
-            baseColor: base,
-            highlightColor: highlight,
-            child: Container(width: 100, height: 130, color: base),
-          );
-        },
-        errorWidget: (context, _, err) {
-          final theme = Theme.of(context);
-          return Container(
-            width: 100,
-            height: 130,
-            color: theme.colorScheme.surfaceContainerHighest,
-            child: Icon(Icons.article_outlined,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                size: 28),
-          );
-        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Cover image
+            CachedNetworkImage(
+              imageUrl: article.coverImageUrl,
+              width: 100,
+              height: 130,
+              fit: BoxFit.cover,
+              placeholder: (context, _) {
+                final isDark =
+                    Theme.of(context).brightness == Brightness.dark;
+                final base =
+                    isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+                final highlight =
+                    isDark ? Colors.grey.shade600 : Colors.grey.shade100;
+                return Shimmer.fromColors(
+                  baseColor: base,
+                  highlightColor: highlight,
+                  child: Container(width: 100, height: 130, color: base),
+                );
+              },
+              errorWidget: (context, _, err) {
+                final theme = Theme.of(context);
+                return Container(
+                  width: 100,
+                  height: 130,
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  child: Icon(Icons.article_outlined,
+                      color: theme.colorScheme.onSurface
+                          .withValues(alpha: 0.4),
+                      size: 28),
+                );
+              },
+            ),
+
+            // Premium badge (top-left)
+            if (article.isPremium)
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 6, vertical: 3),
+                  decoration: BoxDecoration(
+                    gradient: AppColors.goldGradient,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.lock_rounded,
+                          color: Colors.black, size: 9),
+                      SizedBox(width: 2),
+                      Text(
+                        'Premium',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

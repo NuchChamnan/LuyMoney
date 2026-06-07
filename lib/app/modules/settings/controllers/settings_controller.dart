@@ -1,5 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -9,7 +11,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/utils/app_utils.dart';
 import '../../../routes/app_routes.dart';
-import 'dart:io';
 
 class SettingsController extends GetxController {
   final _storage = GetStorage();
@@ -89,15 +90,22 @@ class SettingsController extends GetxController {
   Future<void> uploadAvatar(String filePath) async {
     isLoading.value = true;
     try {
-      final uid = _auth.firebaseUser?.uid;
-      if (uid == null) return;
-      final ref = FirebaseStorage.instance.ref('avatars/$uid.jpg');
-      await ref.putFile(File(filePath));
-      final url = await ref.getDownloadURL();
-      await _auth.updateUserProfile(avatarUrl: url);
+      final file = File(filePath);
+      if (!file.existsSync()) {
+        AppSnackbar.error('Image file not found');
+        return;
+      }
+      final bytes = await file.readAsBytes();
+      // Reject if image is too large (>500KB raw)
+      if (bytes.lengthInBytes > 500 * 1024) {
+        AppSnackbar.error('Image too large. Please choose a smaller image.');
+        return;
+      }
+      final base64String = base64Encode(bytes);
+      await _auth.updateUserProfile(avatarBase64: base64String);
       AppSnackbar.success('Avatar updated');
     } catch (e) {
-      AppSnackbar.error('$e');
+      AppSnackbar.error('Failed to update avatar: $e');
     } finally {
       isLoading.value = false;
     }

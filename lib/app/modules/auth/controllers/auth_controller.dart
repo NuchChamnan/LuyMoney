@@ -96,7 +96,7 @@ class AuthController extends GetxController {
         email: emailController.text.trim(),
         password: passwordController.text,
       );
-      Get.offAllNamed(Routes.SUBSCRIPTION);
+      Get.offAllNamed(Routes.HOME);
     } on FirebaseAuthException catch (e) {
       _showError(_getAuthErrorMessage(e.code));
     } catch (e) {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../routes/app_routes.dart';
+import '../../../services/auth_service.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/widgets/video_card.dart';
 import '../../../shared/widgets/category_chips.dart';
@@ -77,6 +79,14 @@ class VideosView extends GetView<ContentController> {
                     video: video,
                     isBookmarked: controller.bookmarkedVideos.any((v) => v.id == video.id),
                     onBookmark: () => controller.toggleVideoBookmark(video.id),
+                    onTap: () {
+                      final auth = Get.find<AuthService>();
+                      if (video.isPremium && !auth.hasActiveSubscription) {
+                        Get.toNamed(Routes.SUBSCRIPTION);
+                      } else {
+                        Get.toNamed(Routes.VIDEO_DETAIL, arguments: video);
+                      }
+                    },
                   );
                 },
               );
