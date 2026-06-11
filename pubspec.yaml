@@ -64,6 +64,9 @@ flutter:
     - assets/images/
     - assets/lottie/
     - .env
+    - .env.dev
+    - .env.staging
+    - .env.prod
 
 flutter_launcher_icons:
   android: true
