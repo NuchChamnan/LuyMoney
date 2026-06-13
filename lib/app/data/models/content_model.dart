@@ -25,6 +25,7 @@ class VideoModel {
   final bool isPremium;
   final int viewCount;
   final bool isBookmarked;
+  final bool isLiked;
   final double watchProgress; // 0.0 - 1.0
 
   const VideoModel({
@@ -40,6 +41,7 @@ class VideoModel {
     this.isPremium = true,
     this.viewCount = 0,
     this.isBookmarked = false,
+    this.isLiked = false,
     this.watchProgress = 0.0,
   });
 
@@ -95,7 +97,11 @@ class VideoModel {
         'viewCount': viewCount,
       };
 
-  VideoModel copyWith({bool? isBookmarked, double? watchProgress}) {
+  VideoModel copyWith({
+    bool? isBookmarked,
+    bool? isLiked,
+    double? watchProgress,
+  }) {
     return VideoModel(
       id: id,
       title: title,
@@ -109,6 +115,7 @@ class VideoModel {
       isPremium: isPremium,
       viewCount: viewCount,
       isBookmarked: isBookmarked ?? this.isBookmarked,
+      isLiked: isLiked ?? this.isLiked,
       watchProgress: watchProgress ?? this.watchProgress,
     );
   }

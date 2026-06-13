@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../data/models/user_model.dart';
+import '../../../data/models/banner_model.dart';
 import '../../../data/models/content_model.dart';
 import '../../../data/models/subscription_model.dart';
 import '../../../data/models/chat_model.dart';
@@ -11,6 +15,8 @@ import '../../../shared/utils/app_utils.dart';
 
 class AdminController extends GetxController {
   final _db = FirebaseFirestore.instance;
+  final _storage = FirebaseStorage.instance;
+  final _picker = ImagePicker();
 
   // ── Tab ─────────────────────────────────────────────────────────────────────
   final currentTab = 0.obs;
@@ -31,6 +37,11 @@ class AdminController extends GetxController {
   final categories = <String>[
     'finance', 'investment', 'mindset', 'trading', 'savings', 'business',
   ].obs;
+
+  // ── Banners ──────────────────────────────────────────────────────────────────
+  final banners = <BannerModel>[].obs;
+  final isLoadingBanners = false.obs;
+  final isUploadingBannerImage = false.obs;
 
   // ── Analytics ────────────────────────────────────────────────────────────────
   final totalUsers = 0.obs;
@@ -67,6 +78,7 @@ class AdminController extends GetxController {
     fetchContent();
     fetchAdminChats();
     fetchCategories();
+    fetchBanners();
     debounce(userSearch, (_) => fetchUsers(), time: const Duration(milliseconds: 400));
   }
 
@@ -473,6 +485,138 @@ class AdminController extends GetxController {
       AppSnackbar.success('Category removed');
     } catch (e) {
       AppSnackbar.error('Failed to delete: $e');
+    }
+  }
+
+  // ── Banners ────────────────────────────────────────────────────────────────
+
+  /// Picks an image from the device gallery and uploads it to Firebase
+  /// Storage under `banners/`, returning the public download URL.
+  Future<String?> pickAndUploadBannerImage() async {
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (picked == null) return null;
+
+    isUploadingBannerImage.value = true;
+    try {
+      final ext = picked.path.split('.').last;
+      final ref = _storage
+          .ref('banners/${DateTime.now().millisecondsSinceEpoch}.$ext');
+      await ref.putFile(File(picked.path));
+      return await ref.getDownloadURL();
+    } catch (e) {
+      AppSnackbar.error('Failed to upload image: $e');
+      return null;
+    } finally {
+      isUploadingBannerImage.value = false;
+    }
+  }
+
+  Future<void> fetchBanners() async {
+    isLoadingBanners.value = true;
+    try {
+      final snap = await _db.collection('banners').orderBy('sortOrder').get();
+      banners.value = snap.docs.map(BannerModel.fromFirestore).toList();
+    } catch (e) {
+      AppSnackbar.error('Failed to load banners: $e');
+    } finally {
+      isLoadingBanners.value = false;
+    }
+  }
+
+  Future<void> addBanner({
+    required String imageUrl,
+    required String title,
+    required String linkUrl,
+  }) async {
+    if (imageUrl.isEmpty) {
+      AppSnackbar.error('Image URL is required');
+      return;
+    }
+    isLoading.value = true;
+    try {
+      final nextOrder = banners.isEmpty
+          ? 0
+          : banners.map((b) => b.sortOrder).reduce((a, b) => a > b ? a : b) + 1;
+      await _db.collection('banners').add({
+        'imageUrl': imageUrl,
+        'title': title,
+        'linkUrl': linkUrl,
+        'sortOrder': nextOrder,
+        'isActive': true,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await fetchBanners();
+      AppSnackbar.success('Banner added successfully');
+    } catch (e) {
+      AppSnackbar.error('Failed to add banner: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> updateBanner(
+    BannerModel banner, {
+    required String imageUrl,
+    required String title,
+    required String linkUrl,
+  }) async {
+    if (imageUrl.isEmpty) {
+      AppSnackbar.error('Image URL is required');
+      return;
+    }
+    isLoading.value = true;
+    try {
+      await _db.collection('banners').doc(banner.id).update({
+        'imageUrl': imageUrl,
+        'title': title,
+        'linkUrl': linkUrl,
+      });
+      await fetchBanners();
+      AppSnackbar.success('Banner updated');
+    } catch (e) {
+      AppSnackbar.error('Failed to update banner: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> toggleBannerActive(BannerModel banner) async {
+    try {
+      await _db
+          .collection('banners')
+          .doc(banner.id)
+          .update({'isActive': !banner.isActive});
+      await fetchBanners();
+    } catch (e) {
+      AppSnackbar.error('Failed to update banner: $e');
+    }
+  }
+
+  Future<void> deleteBanner(String id) async {
+    try {
+      await _db.collection('banners').doc(id).delete();
+      await fetchBanners();
+      AppSnackbar.success('Banner deleted');
+    } catch (e) {
+      AppSnackbar.error('Failed to delete banner: $e');
+    }
+  }
+
+  /// Move a banner up (-1) or down (+1) by swapping sortOrder with its neighbor.
+  Future<void> reorderBanner(BannerModel banner, int direction) async {
+    final idx = banners.indexOf(banner);
+    final swapIdx = idx + direction;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= banners.length) return;
+    final other = banners[swapIdx];
+    try {
+      await _db.collection('banners').doc(banner.id).update({'sortOrder': other.sortOrder});
+      await _db.collection('banners').doc(other.id).update({'sortOrder': banner.sortOrder});
+      await fetchBanners();
+    } catch (e) {
+      AppSnackbar.error('Failed to reorder banners: $e');
     }
   }
 

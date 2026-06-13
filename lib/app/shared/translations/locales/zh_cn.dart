@@ -88,6 +88,7 @@ const Map<String, String> zhCN = {
   'subscription_reminders': '订阅提醒',
   'new_content_alerts': '新内容提醒',
   'promotional_messages': '促销消息',
+  'saved_videos': '已保存的视频',
   'manage_subscription': '管理订阅',
   'restore_purchase': '恢复购买',
   'faq': '常见问题',

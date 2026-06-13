@@ -1,7 +1,13 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../data/models/banner_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/constants/app_colors.dart';
@@ -30,10 +36,15 @@ class HomeView extends GetView<HomeController> {
               child: _buildHeader(context, ext, theme),
             ),
 
+            // ── Promo banner carousel ────────────────────────────────────────
+            const SliverToBoxAdapter(
+              child: _BannerCarousel(),
+            ),
+
             // ── Subscription card ─────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
                 child: _SubscriptionCard(),
               ),
             ),
@@ -43,10 +54,16 @@ class HomeView extends GetView<HomeController> {
               child: _StatsRow(),
             ),
 
+            // ── Quick actions ─────────────────────────────────────────────────
+            const SliverToBoxAdapter(
+              child: _QuickActionsRow(),
+            ),
+
             // ── Latest Videos ─────────────────────────────────────────────────
             SliverToBoxAdapter(
               child: _SectionHeader(
                 title: 'latest_videos'.tr,
+                icon: Icons.play_circle_rounded,
                 onSeeAll: () => Get.toNamed(Routes.VIDEOS),
               ),
             ),
@@ -64,7 +81,7 @@ class HomeView extends GetView<HomeController> {
                   );
                 }
                 return SizedBox(
-                  height: 210,
+                  height: 214,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -93,6 +110,7 @@ class HomeView extends GetView<HomeController> {
             SliverToBoxAdapter(
               child: _SectionHeader(
                 title: 'latest_articles'.tr,
+                icon: Icons.article_rounded,
                 onSeeAll: () => Get.toNamed(Routes.ARTICLES),
               ),
             ),
@@ -182,6 +200,7 @@ class HomeView extends GetView<HomeController> {
     );
   }
 
+  // ── Hero header ────────────────────────────────────────────────────────────
   Widget _buildHeader(BuildContext context, AppColorExtension ext, ThemeData theme) {
     final now = DateTime.now();
     final greeting = now.hour < 12
@@ -189,69 +208,305 @@ class HomeView extends GetView<HomeController> {
         : now.hour < 17
             ? 'Good Afternoon'
             : 'Good Evening';
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(
-          20, MediaQuery.of(context).padding.top + 16, 20, 20),
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.gold.withValues(alpha: 0.12),
+            AppColors.gold.withValues(alpha: isDark ? 0.22 : 0.16),
             ext.background,
           ],
         ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
       ),
-      child: Row(
+      child: Stack(
         children: [
-          Expanded(
-            child: Obx(() => Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // Decorative glow
+          Positioned(
+            top: -50,
+            right: -40,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold.withValues(alpha: isDark ? 0.10 : 0.08),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -30,
+            left: -30,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.gold.withValues(alpha: isDark ? 0.06 : 0.05),
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+                20, MediaQuery.of(context).padding.top + 16, 20, 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      greeting,
-                      style: TextStyle(
-                          color: ext.textSecondary, fontSize: 13),
+                    const _HeaderAvatar(),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Obx(() => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                greeting,
+                                style: TextStyle(
+                                    color: ext.textSecondary, fontSize: 13),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                controller.userName.isEmpty
+                                    ? 'Luy Money'
+                                    : controller.userName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: ext.textPrimary,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          )),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      controller.userName.isEmpty
-                          ? 'Luy Money'
-                          : controller.userName,
-                      style: TextStyle(
-                        color: ext.textPrimary,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
+                    GestureDetector(
+                      onTap: () => Get.toNamed(Routes.SETTINGS),
+                      child: Container(
+                        padding: const EdgeInsets.all(11),
+                        decoration: BoxDecoration(
+                          color: ext.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: ext.border),
+                        ),
+                        child: Icon(Icons.settings_outlined,
+                            color: ext.textSecondary, size: 22),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'financial_freedom'.tr,
-                      style: TextStyle(
-                          color: AppColors.gold,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500),
-                    ),
                   ],
-                )),
-          ),
-          GestureDetector(
-            onTap: () => Get.toNamed(Routes.SETTINGS),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: ext.surface,
-                shape: BoxShape.circle,
-                border: Border.all(color: ext.border),
-              ),
-              child: Icon(Icons.settings_outlined,
-                  color: ext.textSecondary, size: 22),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.trending_up_rounded,
+                          size: 14, color: AppColors.gold),
+                      const SizedBox(width: 6),
+                      Text(
+                        'financial_freedom'.tr,
+                        style: const TextStyle(
+                            color: AppColors.gold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+// ── Header Avatar ──────────────────────────────────────────────────────────────
+class _HeaderAvatar extends StatelessWidget {
+  const _HeaderAvatar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final user = Get.find<AuthService>().currentUser.value;
+      final name = Get.find<HomeController>().userName;
+      final source = user?.name.isNotEmpty == true ? user!.name : name;
+      final initial = source.isNotEmpty ? source[0].toUpperCase() : 'U';
+
+      ImageProvider? avatarImage;
+      if (user?.avatarBase64 != null && user!.avatarBase64!.isNotEmpty) {
+        avatarImage = MemoryImage(base64Decode(user.avatarBase64!));
+      } else if (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty) {
+        avatarImage = NetworkImage(user.avatarUrl!);
+      }
+
+      return GestureDetector(
+        onTap: () => Get.toNamed(Routes.PROFILE),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: avatarImage == null ? AppColors.goldGradient : null,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.gold.withValues(alpha: 0.35),
+                blurRadius: 14,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: avatarImage != null
+              ? CircleAvatar(radius: 28, backgroundImage: avatarImage)
+              : Center(
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 22,
+                    ),
+                  ),
+                ),
+        ),
+      );
+    });
+  }
+}
+
+// ── Promo Banner Carousel ──────────────────────────────────────────────────────
+class _BannerCarousel extends StatefulWidget {
+  const _BannerCarousel();
+
+  @override
+  State<_BannerCarousel> createState() => _BannerCarouselState();
+}
+
+class _BannerCarouselState extends State<_BannerCarousel> {
+  final _pageController = PageController();
+  Timer? _timer;
+  int _currentPage = 0;
+
+  void _startAutoScroll(int itemCount) {
+    _timer?.cancel();
+    if (itemCount <= 1) return;
+    _timer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!_pageController.hasClients) return;
+      _currentPage = (_currentPage + 1) % itemCount;
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleTap(BannerModel banner) async {
+    final link = banner.linkUrl.trim();
+    if (link.isEmpty) return;
+    if (link.startsWith('/')) {
+      Get.toNamed(link);
+      return;
+    }
+    final uri = Uri.tryParse(link);
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ext = Theme.of(context).extension<AppColorExtension>()!;
+    return Obx(() {
+      final banners = Get.find<HomeController>().banners;
+      if (banners.isEmpty) return const SizedBox.shrink();
+
+      _startAutoScroll(banners.length);
+      if (_currentPage >= banners.length) _currentPage = 0;
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: AspectRatio(
+          aspectRatio: 16 / 7,
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(18),
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: banners.length,
+                  onPageChanged: (i) => setState(() => _currentPage = i),
+                  itemBuilder: (_, i) {
+                    final banner = banners[i];
+                    return GestureDetector(
+                      onTap: () => _handleTap(banner),
+                      child: CachedNetworkImage(
+                        imageUrl: banner.imageUrl,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        placeholder: (_, _) => Container(color: ext.card),
+                        errorWidget: (_, _, _) => Container(
+                          color: ext.card,
+                          child: Icon(Icons.image_not_supported_outlined,
+                              color: ext.textSecondary),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (banners.length > 1)
+                Positioned(
+                  bottom: 10,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(banners.length, (i) {
+                      final isActive = i == _currentPage;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        width: isActive ? 18 : 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? AppColors.gold
+                              : Colors.white.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }
 
@@ -266,28 +521,28 @@ class _SubscriptionCard extends GetView<HomeController> {
         return GestureDetector(
           onTap: () => Get.toNamed(Routes.SUBSCRIPTION),
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: AppColors.goldGradient,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.gold.withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: AppColors.gold.withValues(alpha: 0.35),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.black.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(Icons.workspace_premium_rounded,
-                      color: Colors.black, size: 24),
+                      color: Colors.black, size: 26),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
@@ -299,14 +554,22 @@ class _SubscriptionCard extends GetView<HomeController> {
                               color: Colors.black,
                               fontWeight: FontWeight.w800,
                               fontSize: 15)),
+                      SizedBox(height: 2),
                       Text('Subscribe to access all videos & articles',
                           style: TextStyle(
                               color: Colors.black54, fontSize: 12)),
                     ],
                   ),
                 ),
-                const Icon(Icons.arrow_forward_ios,
-                    color: Colors.black54, size: 16),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.arrow_forward_ios,
+                      color: Colors.black, size: 14),
+                ),
               ],
             ),
           ),
@@ -336,7 +599,14 @@ class _SubscriptionCard extends GetView<HomeController> {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
           border: Border.all(color: color.withValues(alpha: 0.3)),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.12),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -375,7 +645,7 @@ class _StatsRow extends GetView<HomeController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() => Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
           child: Row(
             children: [
               _StatTile(
@@ -434,27 +704,39 @@ class _StatTile extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
           decoration: BoxDecoration(
             color: ext.card,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: ext.border),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.10),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Column(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color, color.withValues(alpha: 0.7)],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: Colors.white, size: 20),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 10),
               Text(value,
                   style: TextStyle(
                       color: ext.textPrimary,
-                      fontSize: 18,
+                      fontSize: 19,
                       fontWeight: FontWeight.w800)),
               const SizedBox(height: 2),
               Text(label,
@@ -468,43 +750,157 @@ class _StatTile extends StatelessWidget {
   }
 }
 
+// ── Quick Actions Row ─────────────────────────────────────────────────────────
+class _QuickActionsRow extends StatelessWidget {
+  const _QuickActionsRow();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Row(
+        children: [
+          _QuickActionTile(
+            icon: Icons.bookmark_rounded,
+            label: 'saved_videos'.tr,
+            color: const Color(0xFFFF6B6B),
+            onTap: () => Get.toNamed(Routes.SAVED_VIDEOS),
+          ),
+          _QuickActionTile(
+            icon: Icons.workspace_premium_rounded,
+            label: 'Premium',
+            color: AppColors.gold,
+            onTap: () => Get.toNamed(Routes.SUBSCRIPTION),
+          ),
+          _QuickActionTile(
+            icon: Icons.support_agent_rounded,
+            label: 'support'.tr,
+            color: const Color(0xFF4ECDC4),
+            onTap: () => Get.toNamed(Routes.SUPPORT),
+          ),
+          _QuickActionTile(
+            icon: Icons.settings_rounded,
+            label: 'settings'.tr,
+            color: const Color(0xFF9B59B6),
+            onTap: () => Get.toNamed(Routes.SETTINGS),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ext = Theme.of(context).extension<AppColorExtension>()!;
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                  color: ext.textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ── Section Header ────────────────────────────────────────────────────────────
 class _SectionHeader extends StatelessWidget {
   final String title;
+  final IconData icon;
   final VoidCallback? onSeeAll;
 
-  const _SectionHeader({required this.title, this.onSeeAll});
+  const _SectionHeader({required this.title, required this.icon, this.onSeeAll});
 
   @override
   Widget build(BuildContext context) {
     final ext = Theme.of(context).extension<AppColorExtension>()!;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 8, 12),
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: Row(
         children: [
           Container(
-            width: 4,
-            height: 18,
+            width: 34,
+            height: 34,
             decoration: BoxDecoration(
               gradient: AppColors.goldGradient,
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.gold.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
+            child: Icon(icon, color: Colors.black, size: 18),
           ),
           const SizedBox(width: 10),
           Text(title,
               style: TextStyle(
                   color: ext.textPrimary,
-                  fontSize: 16,
+                  fontSize: 17,
                   fontWeight: FontWeight.w800)),
           const Spacer(),
           if (onSeeAll != null)
-            TextButton(
-              onPressed: onSeeAll,
-              child: const Text('See All',
-                  style: TextStyle(
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13)),
+            GestureDetector(
+              onTap: onSeeAll,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: ext.card,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: ext.border),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('see_all'.tr,
+                        style: const TextStyle(
+                            color: AppColors.gold,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12)),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.arrow_forward_ios,
+                        size: 10, color: AppColors.gold),
+                  ],
+                ),
+              ),
             ),
         ],
       ),
@@ -574,7 +970,7 @@ class _ShimmerCarousel extends StatelessWidget {
     final base      = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
     final highlight = isDark ? Colors.grey.shade600 : Colors.grey.shade100;
     return SizedBox(
-      height: 210,
+      height: 214,
       child: Shimmer.fromColors(
         baseColor: base,
         highlightColor: highlight,
@@ -584,7 +980,7 @@ class _ShimmerCarousel extends StatelessWidget {
           itemCount: 3,
           itemBuilder: (_, i) => Container(
             width: 200,
-            height: 210,
+            height: 214,
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               color: base,
@@ -626,4 +1022,3 @@ class _ShimmerList extends StatelessWidget {
     );
   }
 }
-

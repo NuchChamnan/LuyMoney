@@ -99,6 +99,7 @@ const Map<String, String> kmKH = {
   'subscription_reminders': 'ការរំលឹកការជាវ',
   'new_content_alerts': 'ការជូនដំណឹងមាតិកាថ្មី',
   'promotional_messages': 'សារផ្សាយពាណិជ្ជកម្ម',
+  'saved_videos': 'វីឌីអូដែលបានរក្សាទុក',
   'manage_subscription': 'គ្រប់គ្រងការជាវ',
   'restore_purchase': 'ស្តារការទិញ',
   'faq': 'សំណួរញឹកញាប់',

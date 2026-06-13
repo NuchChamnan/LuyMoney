@@ -16,6 +16,7 @@ import '../modules/subscription/views/payment_view.dart';
 import '../modules/content/bindings/content_binding.dart';
 import '../modules/content/views/videos_view.dart';
 import '../modules/content/views/video_detail_view.dart';
+import '../modules/content/views/saved_videos_view.dart';
 import '../modules/content/views/articles_view.dart';
 import '../modules/content/views/article_detail_view.dart';
 
@@ -57,6 +58,8 @@ class AppPages {
         binding: SubscriptionBinding(), middlewares: [AuthMiddleware()]),
 
     GetPage(name: Routes.VIDEOS, page: () => const VideosView(),
+        binding: ContentBinding(), middlewares: [AuthMiddleware()]),
+    GetPage(name: Routes.SAVED_VIDEOS, page: () => const SavedVideosView(),
         binding: ContentBinding(), middlewares: [AuthMiddleware()]),
     GetPage(name: Routes.VIDEO_DETAIL, page: () => const VideoDetailView(),
         binding: ContentBinding(), middlewares: [AuthMiddleware()]),

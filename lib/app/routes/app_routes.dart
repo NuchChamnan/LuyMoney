@@ -10,6 +10,7 @@ abstract class Routes {
   static const PAYMENT = '/payment';
   static const VIDEOS = '/content/videos';
   static const VIDEO_DETAIL = '/content/videos/:id';
+  static const SAVED_VIDEOS = '/content/videos/saved';
   static const ARTICLES = '/content/articles';
   static const ARTICLE_DETAIL = '/content/articles/:id';
   static const SUPPORT = '/support';

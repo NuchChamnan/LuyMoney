@@ -1,12 +1,18 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../data/models/comment_model.dart';
 import '../../../data/models/content_model.dart';
+import '../../../services/auth_service.dart';
 import '../../../services/storage_service.dart';
 
 class ContentController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final StorageService _storage = Get.find<StorageService>();
+  final AuthService _authService = Get.find<AuthService>();
 
   // All data (unfiltered)
   final _allVideos   = <VideoModel>[].obs;
@@ -25,6 +31,13 @@ class ContentController extends GetxController {
   final hasMoreVideos   = false.obs;
   final hasMoreArticles = false.obs;
 
+  // Comments (for the currently-viewed video)
+  final comments = <CommentModel>[].obs;
+  final commentController = TextEditingController();
+  final isSendingComment = false.obs;
+  String? _commentsVideoId;
+  StreamSubscription<QuerySnapshot>? _commentsSub;
+
   @override
   void onInit() {
     super.onInit();
@@ -33,6 +46,13 @@ class ContentController extends GetxController {
     loadArticles(refresh: true);
     debounce(searchQuery, (_) => _applyFilters(),
         time: const Duration(milliseconds: 300));
+  }
+
+  @override
+  void onClose() {
+    _commentsSub?.cancel();
+    commentController.dispose();
+    super.onClose();
   }
 
   Future<void> _loadCategories() async {
@@ -75,7 +95,10 @@ class ContentController extends GetxController {
 
       _allVideos.value = snap.docs.map((d) {
         final v = VideoModel.fromFirestore(d);
-        return v.copyWith(isBookmarked: _storage.isVideoBookmarked(v.id));
+        return v.copyWith(
+          isBookmarked: _storage.isVideoBookmarked(v.id),
+          isLiked: _storage.isVideoLiked(v.id),
+        );
       }).toList();
 
       _applyVideoFilter();
@@ -176,6 +199,17 @@ class ContentController extends GetxController {
     }
   }
 
+  // ── Likes ──────────────────────────────────────────────────────────────────
+  Future<void> toggleVideoLike(String id) async {
+    await _storage.toggleVideoLike(id);
+    final i = _allVideos.indexWhere((v) => v.id == id);
+    if (i != -1) {
+      _allVideos[i] =
+          _allVideos[i].copyWith(isLiked: _storage.isVideoLiked(id));
+      _applyVideoFilter();
+    }
+  }
+
   Future<void> toggleArticleBookmark(String id) async {
     await _storage.toggleArticleBookmark(id);
     final i = _allArticles.indexWhere((a) => a.id == id);
@@ -190,4 +224,68 @@ class ContentController extends GetxController {
       _allVideos.where((v) => v.isBookmarked).toList();
   List<ArticleModel> get bookmarkedArticles =>
       _allArticles.where((a) => a.isBookmarked).toList();
+
+  // ── Comments ───────────────────────────────────────────────────────────────
+  void listenToComments(String videoId) {
+    if (_commentsVideoId == videoId) return;
+    _commentsVideoId = videoId;
+    _commentsSub?.cancel();
+    comments.clear();
+    _commentsSub = _firestore
+        .collection('videos')
+        .doc(videoId)
+        .collection('comments')
+        .orderBy('createdAt', descending: true)
+        .limit(100)
+        .snapshots()
+        .listen((snap) {
+      comments.value =
+          snap.docs.map((d) => CommentModel.fromFirestore(d)).toList();
+    });
+  }
+
+  Future<void> addComment(String videoId) async {
+    final text = commentController.text.trim();
+    final userId = _authService.firebaseUser?.uid;
+    if (text.isEmpty || userId == null || isSendingComment.value) return;
+
+    isSendingComment.value = true;
+    commentController.clear();
+    try {
+      final user = _authService.currentUser.value;
+      final comment = CommentModel(
+        id: '',
+        userId: userId,
+        userName: user?.name ?? 'User',
+        userAvatarUrl: user?.avatarUrl,
+        text: text,
+        createdAt: DateTime.now(),
+      );
+      await _firestore
+          .collection('videos')
+          .doc(videoId)
+          .collection('comments')
+          .add(comment.toMap());
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to post comment',
+          snackPosition: SnackPosition.BOTTOM);
+    } finally {
+      isSendingComment.value = false;
+    }
+  }
+
+  Future<void> deleteComment(String videoId, String commentId) async {
+    await _firestore
+        .collection('videos')
+        .doc(videoId)
+        .collection('comments')
+        .doc(commentId)
+        .delete();
+  }
+
+  bool canDeleteComment(CommentModel comment) {
+    final userId = _authService.firebaseUser?.uid;
+    return userId != null &&
+        (comment.userId == userId || _authService.isAdmin);
+  }
 }

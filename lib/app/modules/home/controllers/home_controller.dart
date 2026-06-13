@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 
+import '../../../data/models/banner_model.dart';
 import '../../../data/models/content_model.dart';
 import '../../../services/auth_service.dart';
 
@@ -11,6 +12,7 @@ class HomeController extends GetxController {
   final currentIndex   = 0.obs;
   final recentVideos   = <VideoModel>[].obs;
   final recentArticles = <ArticleModel>[].obs;
+  final banners        = <BannerModel>[].obs;
   final isLoading      = false.obs;
   final totalVideos    = 0.obs;
   final totalArticles  = 0.obs;
@@ -25,34 +27,51 @@ class HomeController extends GetxController {
   Future<void> loadRecentContent() async {
     isLoading.value = true;
     try {
-      // Load recent videos
-      final videosSnap = await _firestore
-          .collection('videos')
-          .orderBy('publishedAt', descending: true)
-          .limit(5)
-          .get()
-          .timeout(const Duration(seconds: 10));
+      // Run all three queries in parallel instead of sequentially —
+      // each has its own 10s timeout, so awaiting one-by-one could
+      // make the home screen wait up to 30s in the worst case.
+      final results = await Future.wait([
+        _firestore
+            .collection('videos')
+            .orderBy('publishedAt', descending: true)
+            .limit(5)
+            .get()
+            .timeout(const Duration(seconds: 10)),
+        _firestore
+            .collection('articles')
+            .orderBy('publishedAt', descending: true)
+            .limit(5)
+            .get()
+            .timeout(const Duration(seconds: 10)),
+        _firestore
+            .collection('categories')
+            .get()
+            .timeout(const Duration(seconds: 10)),
+        _firestore
+            .collection('banners')
+            .orderBy('sortOrder')
+            .get()
+            .timeout(const Duration(seconds: 10)),
+      ]);
+
+      final videosSnap = results[0];
       recentVideos.value =
           videosSnap.docs.map((d) => VideoModel.fromFirestore(d)).toList();
       totalVideos.value = videosSnap.docs.length;
 
-      // Load recent articles
-      final articlesSnap = await _firestore
-          .collection('articles')
-          .orderBy('publishedAt', descending: true)
-          .limit(5)
-          .get()
-          .timeout(const Duration(seconds: 10));
+      final articlesSnap = results[1];
       recentArticles.value =
           articlesSnap.docs.map((d) => ArticleModel.fromFirestore(d)).toList();
       totalArticles.value = articlesSnap.docs.length;
 
-      // Count categories
-      final catSnap = await _firestore
-          .collection('categories')
-          .get()
-          .timeout(const Duration(seconds: 10));
+      final catSnap = results[2];
       totalTopics.value = catSnap.docs.length;
+
+      final bannersSnap = results[3];
+      banners.value = bannersSnap.docs
+          .map((d) => BannerModel.fromFirestore(d))
+          .where((b) => b.isActive)
+          .toList();
     } catch (e) {
       Get.log('Error loading home content: $e');
     } finally {

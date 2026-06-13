@@ -8,6 +8,7 @@ import 'admin_content_view.dart';
 import 'admin_analytics_view.dart';
 import 'admin_notifications_view.dart';
 import 'admin_chats_view.dart';
+import 'admin_banners_view.dart';
 
 class AdminView extends GetView<AdminController> {
   const AdminView({super.key});
@@ -18,6 +19,7 @@ class AdminView extends GetView<AdminController> {
     {'icon': Icons.bar_chart,               'label': 'Analytics'},
     {'icon': Icons.notifications_outlined,  'label': 'Notify'},
     {'icon': Icons.support_agent_outlined,  'label': 'Support'},
+    {'icon': Icons.view_carousel_outlined,  'label': 'Banners'},
   ];
 
   @override
@@ -217,6 +219,7 @@ class AdminView extends GetView<AdminController> {
               AdminAnalyticsView(),
               AdminNotificationsView(),
               AdminChatsView(),
+              AdminBannersView(),
             ],
           )),
     );

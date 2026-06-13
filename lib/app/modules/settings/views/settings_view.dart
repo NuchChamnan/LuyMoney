@@ -71,6 +71,14 @@ class SettingsView extends GetView<SettingsController> {
                 _SectionLabel(label: 'account'.tr, ext: ext),
                 _SettingsCard(ext: ext, children: [
                   _Tile(
+                    icon: Icons.bookmark_outline_rounded,
+                    iconColor: AppColors.gold,
+                    title: 'saved_videos'.tr,
+                    ext: ext,
+                    onTap: () => Get.toNamed(Routes.SAVED_VIDEOS),
+                  ),
+                  _Divider(ext: ext),
+                  _Tile(
                     icon: Icons.lock_outlined,
                     iconColor: Colors.blue,
                     title: 'change_password'.tr,

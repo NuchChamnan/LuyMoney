@@ -25,6 +25,7 @@ class StorageService extends GetxService {
   static const String notifPromoKey = 'notif_promo';
   static const String bookmarkedVideosKey = 'bookmarked_videos';
   static const String bookmarkedArticlesKey = 'bookmarked_articles';
+  static const String likedVideosKey = 'liked_videos';
 
   // Bookmarks
   List<String> get bookmarkedVideoIds =>
@@ -55,4 +56,20 @@ class StorageService extends GetxService {
 
   bool isVideoBookmarked(String id) => bookmarkedVideoIds.contains(id);
   bool isArticleBookmarked(String id) => bookmarkedArticleIds.contains(id);
+
+  // Likes
+  List<String> get likedVideoIds =>
+      _box.read<List>(likedVideosKey)?.cast<String>() ?? [];
+
+  Future<void> toggleVideoLike(String id) async {
+    final ids = likedVideoIds;
+    if (ids.contains(id)) {
+      ids.remove(id);
+    } else {
+      ids.add(id);
+    }
+    await write(likedVideosKey, ids);
+  }
+
+  bool isVideoLiked(String id) => likedVideoIds.contains(id);
 }

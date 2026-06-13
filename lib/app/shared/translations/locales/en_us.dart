@@ -99,6 +99,7 @@ const Map<String, String> enUS = {
   'subscription_reminders': 'Subscription Reminders',
   'new_content_alerts': 'New Content Alerts',
   'promotional_messages': 'Promotional Messages',
+  'saved_videos': 'Saved Videos',
   'manage_subscription': 'Manage Subscription',
   'restore_purchase': 'Restore Purchase',
   'faq': 'FAQ',
