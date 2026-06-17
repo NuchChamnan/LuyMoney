@@ -26,14 +26,14 @@ class RegisterView extends GetView<AuthController> {
               children: [
                 const SizedBox(height: 16),
                 Text(
-                  'Create Account',
+                  'create_account'.tr,
                   style: theme.textTheme.headlineLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Join thousands learning financial freedom',
+                  'join_thousands_tagline'.tr,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -42,7 +42,7 @@ class RegisterView extends GetView<AuthController> {
                 CustomTextField(
                   controller: controller.nameController,
                   label: 'name'.tr,
-                  hint: 'Your full name',
+                  hint: 'your_full_name'.tr,
                   prefixIcon: const Icon(Icons.person_outlined),
                   validator: controller.validateName,
                 ),
@@ -67,7 +67,7 @@ class RegisterView extends GetView<AuthController> {
                 CustomTextField(
                   controller: controller.passwordController,
                   label: 'password'.tr,
-                  hint: 'At least 8 characters',
+                  hint: 'at_least_8_chars'.tr,
                   isPassword: true,
                   prefixIcon: const Icon(Icons.lock_outlined),
                   validator: controller.validatePassword,
@@ -76,7 +76,7 @@ class RegisterView extends GetView<AuthController> {
                 CustomTextField(
                   controller: controller.confirmPasswordController,
                   label: 'confirm_password'.tr,
-                  hint: 'Repeat your password',
+                  hint: 'repeat_password'.tr,
                   isPassword: true,
                   prefixIcon: const Icon(Icons.lock_outlined),
                   validator: controller.validateConfirmPassword,

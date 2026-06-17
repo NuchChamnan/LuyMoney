@@ -30,7 +30,9 @@ class AdminContentView extends GetView<AdminController> {
               ),
               IconButton(
                 icon: Icon(Icons.add_circle, color: ext.primary, size: 28),
-                onPressed: () => _showAddDialog(context, ext),
+                onPressed: () => controller.contentTab.value == 0
+                    ? _showAddDialog(context, ext)
+                    : _showArticleDialog(context, ext),
                 tooltip: 'Add Content',
               ),
             ],
@@ -98,7 +100,7 @@ class AdminContentView extends GetView<AdminController> {
             subtitle: '${article.category} • ${article.readTimeMinutes} min read',
             icon: Icons.article_outlined,
             ext: ext,
-            onEdit: () {},
+            onEdit: () => _showArticleDialog(context, ext, article: article),
             onDelete: () => controller.deleteArticle(article.id),
           );
         },
@@ -107,7 +109,6 @@ class AdminContentView extends GetView<AdminController> {
   }
 
   void _showAddDialog(BuildContext context, AppColorExtension ext) {
-    final isVideo = controller.contentTab.value == 0;
     final titleCtrl = TextEditingController();
     final descCtrl  = TextEditingController();
     final urlCtrl   = TextEditingController();
@@ -120,7 +121,7 @@ class AdminContentView extends GetView<AdminController> {
         backgroundColor: ext.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          isVideo ? 'Add Video' : 'Add Article',
+          'Add Video',
           style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700),
         ),
         content: SizedBox(
@@ -133,7 +134,7 @@ class AdminContentView extends GetView<AdminController> {
                 _DialogField(label: 'Title *', controller: titleCtrl, ext: ext),
                 const SizedBox(height: 12),
                 _DialogField(
-                    label: isVideo ? 'YouTube URL *' : 'Cover Image URL',
+                    label: 'YouTube URL *',
                     controller: urlCtrl,
                     ext: ext),
                 const SizedBox(height: 16),
@@ -238,15 +239,9 @@ class AdminContentView extends GetView<AdminController> {
               final category = selectedCategory.value;
               final desc     = descCtrl.text.trim();
               Navigator.of(dialogContext).pop();
-              if (isVideo) {
-                controller.addVideo(
-                    title: title, videoUrl: url,
-                    category: category, description: desc);
-              } else {
-                controller.addArticle(
-                    title: title, coverImageUrl: url,
-                    category: category, description: desc);
-              }
+              controller.addVideo(
+                  title: title, videoUrl: url,
+                  category: category, description: desc);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: ext.primary,
@@ -255,6 +250,190 @@ class AdminContentView extends GetView<AdminController> {
             child: const Text('Save'),
           ),
         ],
+      ),
+    );
+  }
+
+  // ── Article dialog (Add / Edit) — Facebook-style: image + title + link ──────
+  void _showArticleDialog(BuildContext context, AppColorExtension ext,
+      {ArticleModel? article}) {
+    final isEdit = article != null;
+    final titleCtrl = TextEditingController(text: article?.title ?? '');
+    final imageCtrl = TextEditingController(text: article?.coverImageUrl ?? '');
+    final linkCtrl = TextEditingController(text: article?.linkUrl ?? '');
+    final captionCtrl = TextEditingController(text: article?.content ?? '');
+    final selectedCategory =
+        (article?.category ?? controller.categories.first).obs;
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setState) => AlertDialog(
+          backgroundColor: ext.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            isEdit ? 'Edit Article' : 'Add Article',
+            style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700),
+          ),
+          content: SizedBox(
+            width: 420,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (imageCtrl.text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 10,
+                          child: Image.network(
+                            imageCtrl.text,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, err, st) => Container(
+                              color: ext.surface,
+                              child: Icon(Icons.broken_image_outlined,
+                                  color: ext.textSecondary),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  _DialogField(
+                      label: 'Image URL *', controller: imageCtrl, ext: ext),
+                  const SizedBox(height: 8),
+                  Obx(() => OutlinedButton.icon(
+                        onPressed: controller.isUploadingArticleImage.value
+                            ? null
+                            : () async {
+                                final url =
+                                    await controller.pickAndUploadArticleImage();
+                                if (url != null) {
+                                  setState(() => imageCtrl.text = url);
+                                }
+                              },
+                        icon: controller.isUploadingArticleImage.value
+                            ? SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: ext.primary),
+                              )
+                            : Icon(Icons.photo_library_outlined,
+                                color: ext.primary, size: 18),
+                        label: Text(
+                          controller.isUploadingArticleImage.value
+                              ? 'Uploading...'
+                              : 'Upload from device',
+                          style: TextStyle(color: ext.primary),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: ext.border),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                        ),
+                      )),
+                  const SizedBox(height: 12),
+                  _DialogField(label: 'Title *', controller: titleCtrl, ext: ext),
+                  const SizedBox(height: 12),
+                  _DialogField(
+                      label: 'Link (optional)', controller: linkCtrl, ext: ext),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Link can be an in-app route (e.g. /subscription) or an external URL (e.g. https://...)',
+                    style: TextStyle(color: ext.textSecondary, fontSize: 11),
+                  ),
+                  const SizedBox(height: 12),
+                  _DialogField(
+                      label: 'Caption (optional)',
+                      controller: captionCtrl,
+                      ext: ext,
+                      maxLines: 3),
+                  const SizedBox(height: 16),
+
+                  // ── Category picker ────────────────────────────────────────
+                  Text('Category',
+                      style: TextStyle(
+                          color: ext.textSecondary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 8),
+                  Obx(() => Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: controller.categories.map((cat) {
+                          final isSel = selectedCategory.value == cat;
+                          return GestureDetector(
+                            onTap: () => selectedCategory.value = cat,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 7),
+                              decoration: BoxDecoration(
+                                color: isSel ? ext.primary : ext.surface,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isSel ? ext.primary : ext.border,
+                                ),
+                              ),
+                              child: Text(
+                                cat[0].toUpperCase() + cat.substring(1),
+                                style: TextStyle(
+                                  color: isSel ? Colors.black : ext.textPrimary,
+                                  fontSize: 13,
+                                  fontWeight:
+                                      isSel ? FontWeight.w700 : FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      )),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text('Cancel', style: TextStyle(color: ext.textSecondary)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final title    = titleCtrl.text.trim();
+                final image    = imageCtrl.text.trim();
+                final link     = linkCtrl.text.trim();
+                final caption  = captionCtrl.text.trim();
+                final category = selectedCategory.value;
+                Navigator.of(dialogContext).pop();
+                if (isEdit) {
+                  controller.updateArticle(
+                      id: article.id,
+                      title: title,
+                      coverImageUrl: image,
+                      linkUrl: link,
+                      category: category,
+                      description: caption);
+                } else {
+                  controller.addArticle(
+                      title: title,
+                      coverImageUrl: image,
+                      linkUrl: link,
+                      category: category,
+                      description: caption);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ext.primary,
+                foregroundColor: Colors.black,
+              ),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -480,52 +659,138 @@ class AdminContentView extends GetView<AdminController> {
   void _showEditVideoDialog(
       BuildContext context, AppColorExtension ext, VideoModel video) {
     final titleCtrl = TextEditingController(text: video.title);
-    final descCtrl = TextEditingController(text: video.description);
-    final urlCtrl = TextEditingController(text: video.videoUrl);
+    final descCtrl  = TextEditingController(text: video.description);
+    final urlCtrl   = TextEditingController(text: video.videoUrl);
 
-    Get.dialog(
-      Dialog(
-        backgroundColor: ext.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Edit Video',
+    // Track selected category using plain setState via StatefulBuilder
+    final initialCat = video.category.isNotEmpty ? video.category : 'finance';
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogCtx) {
+        var selectedCat = initialCat;
+        return StatefulBuilder(
+          builder: (_, setState) {
+            return AlertDialog(
+              backgroundColor: ext.card,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+              title: Text('Edit Video',
                   style: TextStyle(
-                      color: ext.textPrimary, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 16),
-              _DialogField(label: 'Title', controller: titleCtrl, ext: ext),
-              const SizedBox(height: 12),
-              _DialogField(label: 'Video URL', controller: urlCtrl, ext: ext),
-              const SizedBox(height: 12),
-              _DialogField(
-                  label: 'Description',
-                  controller: descCtrl,
-                  ext: ext,
-                  maxLines: 3),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                      onPressed: Get.back, child: const Text('Cancel')),
-                  const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      Get.back();
-                      AppSnackbar.success('Video updated');
-                    },
-                    child: const Text('Save'),
+                      color: ext.textPrimary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16)),
+              content: SizedBox(
+                width: 420,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _DialogField(
+                          label: 'Title',
+                          controller: titleCtrl,
+                          ext: ext),
+                      const SizedBox(height: 12),
+                      _DialogField(
+                          label: 'Video URL',
+                          controller: urlCtrl,
+                          ext: ext),
+                      const SizedBox(height: 12),
+                      _DialogField(
+                          label: 'Description',
+                          controller: descCtrl,
+                          ext: ext,
+                          maxLines: 3),
+                      const SizedBox(height: 16),
+                      Text('Category',
+                          style: TextStyle(
+                              color: ext.textSecondary,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 8),
+                      Obx(() => Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: controller.categories.map((cat) {
+                              final isSel = selectedCat == cat;
+                              return GestureDetector(
+                                onTap: () =>
+                                    setState(() => selectedCat = cat),
+                                child: AnimatedContainer(
+                                  duration:
+                                      const Duration(milliseconds: 150),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 7),
+                                  decoration: BoxDecoration(
+                                    color: isSel
+                                        ? ext.primary
+                                        : ext.surface,
+                                    borderRadius:
+                                        BorderRadius.circular(20),
+                                    border: Border.all(
+                                        color: isSel
+                                            ? ext.primary
+                                            : ext.border),
+                                  ),
+                                  child: Text(
+                                    cat[0].toUpperCase() +
+                                        cat.substring(1),
+                                    style: TextStyle(
+                                      color: isSel
+                                          ? Colors.black
+                                          : ext.textPrimary,
+                                      fontSize: 13,
+                                      fontWeight: isSel
+                                          ? FontWeight.w700
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          )),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(dialogCtx).pop(),
+                  child: Text('Cancel',
+                      style: TextStyle(color: ext.textSecondary)),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final title = titleCtrl.text.trim();
+                    final url   = urlCtrl.text.trim();
+                    final desc  = descCtrl.text.trim();
+                    Navigator.of(dialogCtx).pop();
+                    controller.updateVideo(
+                      id: video.id,
+                      title: title,
+                      videoUrl: url,
+                      category: selectedCat,
+                      description: desc,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ext.primary,
+                    foregroundColor: Colors.black,
+                  ),
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    ).then((_) {
+      titleCtrl.dispose();
+      descCtrl.dispose();
+      urlCtrl.dispose();
+    });
   }
 }
 

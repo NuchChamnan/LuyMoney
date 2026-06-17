@@ -120,8 +120,8 @@ class _OrderSummaryCard extends StatelessWidget {
             const SizedBox(height: 6),
             _SummaryRow(
               theme: theme,
-              label: 'Duration',
-              value: '${plan.durationDays} days',
+              label: 'duration'.tr,
+              value: 'days_count'.trParams({'count': '${plan.durationDays}'}),
               bold: false,
               dimmed: true,
             ),
@@ -321,7 +321,7 @@ class _QrCodeSection extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Amount: ',
+                    '${'amount'.tr}: ',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
@@ -389,7 +389,7 @@ class _AccountInfoCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'ABA Bank Account',
+                'aba_bank_account'.tr,
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFF003087),
@@ -400,14 +400,14 @@ class _AccountInfoCard extends StatelessWidget {
           const SizedBox(height: 14),
           _CopyableRow(
             theme: theme,
-            label: 'Account Number',
+            label: 'account_number'.tr,
             value: accountNumber,
             icon: Icons.tag_rounded,
           ),
           const SizedBox(height: 10),
           _CopyableRow(
             theme: theme,
-            label: 'Account Name',
+            label: 'account_name'.tr,
             value: accountName,
             icon: Icons.person_rounded,
             copyable: false,
@@ -418,7 +418,7 @@ class _AccountInfoCard extends StatelessWidget {
             if (plan == null) return const SizedBox.shrink();
             return _CopyableRow(
               theme: theme,
-              label: 'Amount',
+              label: 'amount'.tr,
               value: '\$${plan.price.toStringAsFixed(2)}',
               icon: Icons.attach_money_rounded,
               valueColor: AppColors.gold,
@@ -483,7 +483,7 @@ class _CopyableRow extends StatelessWidget {
               Clipboard.setData(ClipboardData(text: value));
               Get.snackbar(
                 '',
-                'Copied: $value',
+                'copied_value'.trParams({'value': value}),
                 snackPosition: SnackPosition.TOP,
                 duration: const Duration(seconds: 2),
                 backgroundColor: AppColors.gold.withValues(alpha: 0.9),
@@ -512,7 +512,7 @@ class _CopyableRow extends StatelessWidget {
                   Icon(Icons.copy_rounded, size: 13, color: AppColors.gold),
                   const SizedBox(width: 4),
                   Text(
-                    'Copy',
+                    'copy'.tr,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: AppColors.gold,
                       fontWeight: FontWeight.w700,
@@ -537,10 +537,10 @@ class _PaymentSteps extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final steps = [
-      (Icons.phone_android_rounded, 'បើក ABA Mobile App'),
-      (Icons.qr_code_scanner_rounded, 'ចុច QR Pay ហើយ Scan QR Code'),
-      (Icons.check_circle_outline_rounded, 'Confirm ចំនួនទឹកប្រាក់'),
-      (Icons.touch_app_rounded, 'ចុច "I\'ve Completed Payment" ខាងក្រោម'),
+      (Icons.phone_android_rounded, 'payment_step_1'.tr),
+      (Icons.qr_code_scanner_rounded, 'payment_step_2'.tr),
+      (Icons.check_circle_outline_rounded, 'payment_step_3'.tr),
+      (Icons.touch_app_rounded, 'payment_step_4'.tr),
     ];
 
     return Container(
@@ -562,7 +562,7 @@ class _PaymentSteps extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                'របៀបបង់ប្រាក់',
+                'how_to_pay'.tr,
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: AppColors.gold,
                   fontWeight: FontWeight.w700,
@@ -648,8 +648,8 @@ class _PayButton extends StatelessWidget {
       child: Obx(
         () => GoldButton(
           label: controller.isLoading.value
-              ? 'Processing...'
-              : '✓  I\'ve Completed Payment',
+              ? 'processing'.tr
+              : '✓  ${'ive_completed_payment'.tr}',
           isLoading: controller.isLoading.value,
           onPressed: controller.processPayment,
           icon: controller.isLoading.value ? null : Icons.verified_rounded,

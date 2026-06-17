@@ -111,7 +111,7 @@ class _SplashViewState extends State<SplashView>
                 ),
                 SizedBox(height: context.rSize(8)),
                 Text(
-                  'Financial Freedom',
+                  'financial_freedom'.tr,
                   style: TextStyle(
                     color: AppColors.blackTextSecondary,
                     fontSize: context.rFont(14),

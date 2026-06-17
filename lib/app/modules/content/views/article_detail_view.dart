@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_html/flutter_html.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/models/content_model.dart';
 import '../../../shared/constants/app_colors.dart';
@@ -11,6 +11,19 @@ import '../controllers/content_controller.dart';
 class ArticleDetailView extends GetView<ContentController> {
   const ArticleDetailView({super.key});
 
+  Future<void> _openLink(String linkUrl) async {
+    final link = linkUrl.trim();
+    if (link.isEmpty) return;
+    if (link.startsWith('/')) {
+      Get.toNamed(link);
+      return;
+    }
+    final uri = Uri.tryParse(link);
+    if (uri != null && await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ArticleModel article = Get.arguments as ArticleModel;
@@ -19,14 +32,19 @@ class ArticleDetailView extends GetView<ContentController> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            expandedHeight: context.screenHeight * 0.3,
+            expandedHeight: context.screenHeight * 0.35,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: CachedNetworkImage(
                 imageUrl: article.coverImageUrl,
                 fit: BoxFit.cover,
-                placeholder: (_, __) =>
+                placeholder: (_, _) =>
                     Container(color: theme.colorScheme.surface),
+                errorWidget: (_, _, _) => Container(
+                  color: theme.colorScheme.surface,
+                  child: Icon(Icons.image_not_supported_outlined,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4)),
+                ),
               ),
             ),
             actions: [
@@ -91,29 +109,38 @@ class ArticleDetailView extends GetView<ContentController> {
                       ),
                     ],
                   ),
-                  const Divider(height: 32),
-                  // Content
-                  Html(
-                    data: article.content,
-                    style: {
-                      'body': Style(
-                        fontSize: FontSize(16),
-                        lineHeight: LineHeight(1.7),
+
+                  // Caption (optional, plain text)
+                  if (article.content.trim().isNotEmpty) ...[
+                    const Divider(height: 32),
+                    Text(
+                      article.content,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        height: 1.7,
                         color: theme.colorScheme.onSurface,
                       ),
-                      'h1': Style(
-                        fontSize: FontSize(24),
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.onSurface,
+                    ),
+                  ],
+
+                  // Link button (optional)
+                  if (article.linkUrl.trim().isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _openLink(article.linkUrl),
+                        icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                        label: Text('view_link'.tr),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.gold,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
                       ),
-                      'h2': Style(
-                        fontSize: FontSize(20),
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      'a': Style(color: AppColors.gold),
-                    },
-                  ),
+                    ),
+                  ],
                 ],
               ),
             ),

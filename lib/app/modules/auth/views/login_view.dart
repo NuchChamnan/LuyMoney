@@ -82,8 +82,15 @@ class LoginView extends GetView<AuthController> {
                         (t) => t.theme == themeCtrl.currentTheme.value,
                         orElse: () => _themes.first,
                       );
+                      final lang = langCtrl.currentLocale.value.languageCode;
+                      final label = lang == 'km'
+                          ? cur.labelKm
+                          : lang == 'zh'
+                              ? cur.labelZh
+                              : cur.label;
                       return _ThemeButton(
                         meta: cur,
+                        label: label,
                         onTap: () => _showThemeSheet(context, themeCtrl),
                       );
                     }),
@@ -206,7 +213,7 @@ class LoginView extends GetView<AuthController> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'or',
+                        'or'.tr,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface
                               .withValues(alpha: 0.4),
@@ -222,7 +229,7 @@ class LoginView extends GetView<AuthController> {
                 OutlinedButton.icon(
                   onPressed: controller.authenticateWithBiometric,
                   icon: const Icon(Icons.fingerprint),
-                  label: const Text('Biometric Login'),
+                  label: Text('biometric_login'.tr),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 52),
                     shape: RoundedRectangleBorder(
@@ -508,9 +515,10 @@ class _ThemeMeta {
 // ── Theme Button Widget ───────────────────────────────────────────────────────
 class _ThemeButton extends StatelessWidget {
   final _ThemeMeta meta;
+  final String label;
   final VoidCallback onTap;
 
-  const _ThemeButton({required this.meta, required this.onTap});
+  const _ThemeButton({required this.meta, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -539,7 +547,7 @@ class _ThemeButton extends StatelessWidget {
             Text(meta.icon, style: const TextStyle(fontSize: 16)),
             const SizedBox(width: 6),
             Text(
-              meta.label,
+              label,
               style: theme.textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: AppColors.gold,

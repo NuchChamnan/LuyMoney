@@ -39,13 +39,13 @@ class ForgotPasswordView extends GetView<AuthController> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Reset Password',
+                        'reset_password'.tr,
                         style: theme.textTheme.headlineMedium
                             ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Enter your email address and we\'ll send you a reset link.',
+                        'reset_password_instruction'.tr,
                         style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
                       ),
@@ -80,13 +80,13 @@ class ForgotPasswordView extends GetView<AuthController> {
             size: context.rSize(80), color: AppColors.gold),
         const SizedBox(height: 24),
         Text(
-          'Email Sent!',
+          'email_sent'.tr,
           style: theme.textTheme.headlineMedium
               ?.copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Text(
-          'Check your inbox and follow the link to reset your password.',
+          'check_inbox_instruction'.tr,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),

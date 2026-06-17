@@ -33,9 +33,9 @@ class SubscriptionView extends GetView<SubscriptionController> {
                           ShaderMask(
                             shaderCallback: (bounds) =>
                                 AppColors.goldGradient.createShader(bounds),
-                            child: const Text(
-                              'Unlock Financial Knowledge',
-                              style: TextStyle(
+                            child: Text(
+                              'unlock_financial_knowledge'.tr,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
@@ -45,7 +45,7 @@ class SubscriptionView extends GetView<SubscriptionController> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Access all videos, articles & expert insights',
+                            'access_all_content'.tr,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
@@ -95,17 +95,17 @@ class SubscriptionView extends GetView<SubscriptionController> {
 
   Widget _buildFeaturesList(ThemeData theme) {
     final features = [
-      'Unlimited video access',
-      'Premium articles & guides',
-      'Expert financial insights',
-      'Downloadable resources',
-      'Community access',
-      'Cancel anytime',
+      'feature_unlimited_videos'.tr,
+      'feature_premium_articles'.tr,
+      'feature_expert_insights'.tr,
+      'feature_downloadable_resources'.tr,
+      'feature_community_access'.tr,
+      'feature_cancel_anytime'.tr,
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('What\'s included:',
+        Text('whats_included'.tr,
             style:
                 theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
         const SizedBox(height: 12),
@@ -213,7 +213,8 @@ class _PlanCard extends GetView<SubscriptionController> {
                             ),
                           ),
                           Text(
-                            '${plan.durationDays} days access',
+                            'days_access'.trParams(
+                                {'count': '${plan.durationDays}'}),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
                             ),

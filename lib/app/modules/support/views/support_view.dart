@@ -58,11 +58,11 @@ class _InAppChatView extends GetView<SupportController> {
                       Icon(Icons.chat_bubble_outline,
                           size: context.rSize(64), color: AppColors.gold),
                       SizedBox(height: context.rSize(16)),
-                      Text('Start a conversation',
+                      Text('start_conversation'.tr,
                           style: theme.textTheme.titleMedium),
                       SizedBox(height: context.rSize(8)),
                       Text(
-                        'Our team typically replies within 24 hours',
+                        'team_replies_24h'.tr,
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface
@@ -290,13 +290,13 @@ class _TelegramView extends GetView<SupportController> {
             ),
             SizedBox(height: context.rSize(24)),
             Text(
-              'Join Our Telegram',
+              'join_our_telegram'.tr,
               style: theme.textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.w700),
             ),
             SizedBox(height: context.rSize(8)),
             Text(
-              'Get real-time support, share insights, and connect with our financial community.',
+              'telegram_description'.tr,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.6),

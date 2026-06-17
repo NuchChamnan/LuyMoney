@@ -24,7 +24,7 @@ class VideoDetailView extends GetView<ContentController> {
 
     return Scaffold(
       appBar: AppBar(title: Text(video.title)),
-      body: const Center(child: Text('Video player not available')),
+      body: Center(child: Text('video_player_not_available'.tr)),
     );
   }
 }
@@ -42,22 +42,38 @@ class _YoutubeVideoDetailState extends State<_YoutubeVideoDetail> {
   late YoutubePlayerController _ytController;
   late VideoModel _currentVideo;
   final _scrollController = ScrollController();
+  // Holds the displayed title — starts with the Firestore value and is
+  // overwritten once the YouTube player provides its own metadata title.
+  late final ValueNotifier<String> _ytTitle;
 
   @override
   void initState() {
     super.initState();
     _currentVideo = widget.video;
+    _ytTitle = ValueNotifier(_currentVideo.title);
     _ytController = YoutubePlayerController(
       initialVideoId: _currentVideo.youtubeVideoId,
       flags: const YoutubePlayerFlags(autoPlay: true),
     );
-    Get.find<ContentController>().listenToComments(_currentVideo.id);
+    _ytController.addListener(_onYtControllerChanged);
+    final ctrl = Get.find<ContentController>();
+    ctrl.listenToComments(_currentVideo.id);
+    ctrl.incrementViewCount(_currentVideo.id);
+  }
+
+  void _onYtControllerChanged() {
+    final metaTitle = _ytController.value.metaData.title;
+    if (metaTitle.isNotEmpty) {
+      _ytTitle.value = metaTitle;
+    }
   }
 
   @override
   void dispose() {
+    _ytController.removeListener(_onYtControllerChanged);
     _ytController.dispose();
     _scrollController.dispose();
+    _ytTitle.dispose();
     super.dispose();
   }
 
@@ -70,8 +86,12 @@ class _YoutubeVideoDetailState extends State<_YoutubeVideoDetail> {
       return;
     }
     setState(() => _currentVideo = video);
+    // Reset to stored title immediately; listener will update once YT loads.
+    _ytTitle.value = video.title;
     _ytController.load(video.youtubeVideoId);
-    Get.find<ContentController>().listenToComments(video.id);
+    final ctrl = Get.find<ContentController>();
+    ctrl.listenToComments(video.id);
+    ctrl.incrementViewCount(video.id);
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(0);
     }
@@ -86,6 +106,7 @@ class _YoutubeVideoDetailState extends State<_YoutubeVideoDetail> {
         player: player,
         scrollController: _scrollController,
         onSelectVideo: _selectVideo,
+        titleNotifier: _ytTitle,
       ),
     );
   }
@@ -97,11 +118,13 @@ class _VideoDetailScaffold extends StatefulWidget {
   final Widget player;
   final ScrollController scrollController;
   final ValueChanged<VideoModel> onSelectVideo;
+  final ValueNotifier<String> titleNotifier;
   const _VideoDetailScaffold({
     required this.video,
     required this.player,
     required this.scrollController,
     required this.onSelectVideo,
+    required this.titleNotifier,
   });
 
   @override
@@ -163,7 +186,10 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                 // Title + close
                 SliverToBoxAdapter(
                   child: _TitleSection(
-                      video: widget.video, ext: ext, theme: theme),
+                      video: widget.video,
+                      ext: ext,
+                      theme: theme,
+                      titleNotifier: widget.titleNotifier),
                 ),
 
                 // Stats row
@@ -176,7 +202,7 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                         _StatChip(
                           icon: Icons.visibility_outlined,
                           label:
-                              '${_formatCount(widget.video.viewCount)} views',
+                              '${_formatCount(widget.video.viewCount)} ${'views_label'.tr}',
                           color: ext.textSecondary,
                         ),
                         _StatChip(
@@ -220,7 +246,7 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Comments',
+                        'comments'.tr,
                         style: TextStyle(
                           color: ext.textPrimary,
                           fontWeight: FontWeight.w700,
@@ -251,7 +277,7 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                         padding: const EdgeInsets.symmetric(vertical: 24),
                         child: Center(
                           child: Text(
-                            'No comments yet',
+                            'no_comments_yet'.tr,
                             style:
                                 TextStyle(color: ext.textSecondary, fontSize: 14),
                           ),
@@ -305,7 +331,7 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'More Videos',
+                        'more_videos'.tr,
                         style: TextStyle(
                           color: ext.textPrimary,
                           fontWeight: FontWeight.w700,
@@ -338,7 +364,7 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                                     .withValues(alpha: 0.4)),
                             const SizedBox(height: 12),
                             Text(
-                              'No videos found',
+                              'no_videos_found'.tr,
                               style: TextStyle(
                                   color: ext.textSecondary, fontSize: 14),
                             ),
@@ -481,8 +507,13 @@ class _TitleSection extends StatelessWidget {
   final VideoModel video;
   final AppColorExtension ext;
   final ThemeData theme;
-  const _TitleSection(
-      {required this.video, required this.ext, required this.theme});
+  final ValueNotifier<String> titleNotifier;
+  const _TitleSection({
+    required this.video,
+    required this.ext,
+    required this.theme,
+    required this.titleNotifier,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -492,13 +523,16 @@ class _TitleSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Text(
-              video.title,
-              style: TextStyle(
-                color: ext.textPrimary,
-                fontWeight: FontWeight.w800,
-                fontSize: 18,
-                height: 1.35,
+            child: ValueListenableBuilder<String>(
+              valueListenable: titleNotifier,
+              builder: (_, title, _) => Text(
+                title,
+                style: TextStyle(
+                  color: ext.textPrimary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 18,
+                  height: 1.35,
+                ),
               ),
             ),
           ),
@@ -588,7 +622,7 @@ class _DescriptionSection extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                expanded ? 'Show less ▲' : 'Show more ▼',
+                expanded ? '${'show_less'.tr} ▲' : '${'show_more'.tr} ▼',
                 style: const TextStyle(
                   color: AppColors.gold,
                   fontWeight: FontWeight.w600,
@@ -632,7 +666,7 @@ class _ActionBar extends StatelessWidget {
             final likeCount = video.viewCount ~/ 10 + (isLiked ? 1 : 0);
             return _ActionBtn(
               icon: isLiked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
-              label: likeCount > 0 ? likeCount.toString() : 'Like',
+              label: likeCount > 0 ? likeCount.toString() : 'like'.tr,
               color: isLiked ? AppColors.gold : ext.textSecondary,
               onTap: () => ctrl.toggleVideoLike(video.id),
               ext: ext,
@@ -651,7 +685,7 @@ class _ActionBar extends StatelessWidget {
               icon: isBookmarked
                   ? Icons.bookmark_rounded
                   : Icons.bookmark_outline_rounded,
-              label: 'Save',
+              label: 'save'.tr,
               color: isBookmarked ? AppColors.gold : ext.textSecondary,
               onTap: () => ctrl.toggleVideoBookmark(video.id),
               ext: ext,
@@ -661,7 +695,7 @@ class _ActionBar extends StatelessWidget {
           // More
           _ActionBtn(
             icon: Icons.more_horiz_rounded,
-            label: 'More',
+            label: 'more'.tr,
             color: ext.textSecondary,
             onTap: onMore,
             ext: ext,
@@ -802,11 +836,11 @@ class _MoreSheet extends StatelessWidget {
           _SheetTile(
             icon: Icons.playlist_add_rounded,
             iconColor: Colors.purple,
-            title: 'Add to Playlist',
+            title: 'add_to_playlist'.tr,
             ext: ext,
             onTap: () {
               Get.back();
-              Get.snackbar('Coming Soon', 'Playlist feature will be available soon.',
+              Get.snackbar('coming_soon'.tr, 'playlist_coming_soon'.tr,
                   snackPosition: SnackPosition.BOTTOM,
                   backgroundColor: ext.surface,
                   colorText: ext.textPrimary,
@@ -818,7 +852,7 @@ class _MoreSheet extends StatelessWidget {
           _SheetTile(
             icon: Icons.flag_outlined,
             iconColor: Colors.red,
-            title: 'Report Video',
+            title: 'report_video'.tr,
             ext: ext,
             onTap: () {
               Get.back();
@@ -835,20 +869,20 @@ class _MoreSheet extends StatelessWidget {
       AlertDialog(
         backgroundColor: ext.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text('Report Video',
+        title: Text('report_video'.tr,
             style: TextStyle(
                 color: ext.textPrimary, fontWeight: FontWeight.w700)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Why are you reporting this video?',
+            Text('why_reporting_video'.tr,
                 style: TextStyle(color: ext.textSecondary, fontSize: 14)),
             const SizedBox(height: 16),
             ...[
-              'Inappropriate content',
-              'Spam or misleading',
-              'Copyright violation',
-              'Other',
+              'report_inappropriate'.tr,
+              'report_spam'.tr,
+              'report_copyright'.tr,
+              'report_other'.tr,
             ].map((reason) => ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
@@ -859,7 +893,7 @@ class _MoreSheet extends StatelessWidget {
                           TextStyle(color: ext.textPrimary, fontSize: 14)),
                   onTap: () {
                     Get.back();
-                    Get.snackbar('Report Sent', 'Thank you for your report.',
+                    Get.snackbar('report_sent'.tr, 'report_thank_you'.tr,
                         snackPosition: SnackPosition.BOTTOM,
                         backgroundColor: ext.surface,
                         colorText: ext.textPrimary,
@@ -873,8 +907,8 @@ class _MoreSheet extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: Get.back,
-            child: const Text('Cancel',
-                style: TextStyle(color: AppColors.gold)),
+            child: Text('cancel'.tr,
+                style: const TextStyle(color: AppColors.gold)),
           ),
         ],
       ),
@@ -930,7 +964,7 @@ class _CommentInput extends StatelessWidget {
               maxLines: 4,
               style: TextStyle(color: ext.textPrimary, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Add a comment...',
+                hintText: 'add_comment_hint'.tr,
                 hintStyle: TextStyle(color: ext.textSecondary, fontSize: 14),
                 filled: true,
                 fillColor: ext.surface,
@@ -1071,10 +1105,16 @@ class _CommentTile extends StatelessWidget {
 
 String _formatRelativeTime(DateTime dt) {
   final diff = DateTime.now().difference(dt);
-  if (diff.inSeconds < 60) return 'Just now';
-  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-  if (diff.inHours < 24) return '${diff.inHours}h ago';
-  if (diff.inDays < 7) return '${diff.inDays}d ago';
+  if (diff.inSeconds < 60) return 'just_now'.tr;
+  if (diff.inMinutes < 60) {
+    return 'minutes_ago'.trParams({'count': '${diff.inMinutes}'});
+  }
+  if (diff.inHours < 24) {
+    return 'hours_ago'.trParams({'count': '${diff.inHours}'});
+  }
+  if (diff.inDays < 7) {
+    return 'days_ago'.trParams({'count': '${diff.inDays}'});
+  }
   return '${dt.month}/${dt.day}/${dt.year}';
 }
 

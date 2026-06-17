@@ -75,8 +75,8 @@ class HomeView extends GetView<HomeController> {
                 if (controller.recentVideos.isEmpty) {
                   return _EmptySection(
                     icon: Icons.play_circle_outline,
-                    message: 'No videos yet',
-                    actionLabel: 'Browse Videos',
+                    message: 'no_videos_yet'.tr,
+                    actionLabel: 'browse_videos'.tr,
                     onAction: () => Get.toNamed(Routes.VIDEOS),
                   );
                 }
@@ -122,8 +122,8 @@ class HomeView extends GetView<HomeController> {
                 if (controller.recentArticles.isEmpty) {
                   return _EmptySection(
                     icon: Icons.article_outlined,
-                    message: 'No articles yet',
-                    actionLabel: 'Browse Articles',
+                    message: 'no_articles_yet'.tr,
+                    actionLabel: 'browse_articles'.tr,
                     onAction: () => Get.toNamed(Routes.ARTICLES),
                   );
                 }
@@ -173,7 +173,7 @@ class HomeView extends GetView<HomeController> {
               NavigationDestination(
                 icon: const Icon(Icons.home_outlined),
                 selectedIcon: const Icon(Icons.home_rounded, color: AppColors.gold),
-                label: 'Home',
+                label: 'home'.tr,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.play_circle_outline),
@@ -204,10 +204,10 @@ class HomeView extends GetView<HomeController> {
   Widget _buildHeader(BuildContext context, AppColorExtension ext, ThemeData theme) {
     final now = DateTime.now();
     final greeting = now.hour < 12
-        ? 'Good Morning'
+        ? 'good_morning'.tr
         : now.hour < 17
-            ? 'Good Afternoon'
-            : 'Good Evening';
+            ? 'good_afternoon'.tr
+            : 'good_evening'.tr;
     final isDark = theme.brightness == Brightness.dark;
 
     return Container(
@@ -545,18 +545,18 @@ class _SubscriptionCard extends GetView<HomeController> {
                       color: Colors.black, size: 26),
                 ),
                 const SizedBox(width: 14),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Unlock Premium Content',
-                          style: TextStyle(
+                      Text('unlock_premium_content'.tr,
+                          style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w800,
                               fontSize: 15)),
-                      SizedBox(height: 2),
-                      Text('Subscribe to access all videos & articles',
-                          style: TextStyle(
+                      const SizedBox(height: 2),
+                      Text('subscribe_to_access'.tr,
+                          style: const TextStyle(
                               color: Colors.black54, fontSize: 12)),
                     ],
                   ),
@@ -589,10 +589,10 @@ class _SubscriptionCard extends GetView<HomeController> {
               ? Icons.access_time_rounded
               : Icons.verified_rounded;
       final title = isExpired
-          ? 'Subscription Expired'
+          ? 'subscription_expired'.tr
           : isExpiring
-              ? 'Expiring Soon — ${sub.daysRemaining} days left'
-              : 'Subscription Active';
+              ? '${'subscription_expiring'.tr} — ${sub.daysRemaining} ${'days_left'.tr}'
+              : 'subscription_active'.tr;
 
       return Container(
         padding: const EdgeInsets.all(16),
@@ -629,7 +629,7 @@ class _SubscriptionCard extends GetView<HomeController> {
             if (isExpired || isExpiring)
               TextButton(
                 onPressed: () => Get.toNamed(Routes.SUBSCRIPTION),
-                child: Text('Renew',
+                child: Text('renew'.tr,
                     style: TextStyle(
                         color: color, fontWeight: FontWeight.w800)),
               ),
@@ -650,7 +650,7 @@ class _StatsRow extends GetView<HomeController> {
             children: [
               _StatTile(
                 icon: Icons.play_circle_rounded,
-                label: 'Videos',
+                label: 'videos'.tr,
                 value: controller.totalVideos.value > 0
                     ? '${controller.totalVideos.value}'
                     : '0',
@@ -660,7 +660,7 @@ class _StatsRow extends GetView<HomeController> {
               const SizedBox(width: 10),
               _StatTile(
                 icon: Icons.article_rounded,
-                label: 'Articles',
+                label: 'articles'.tr,
                 value: controller.totalArticles.value > 0
                     ? '${controller.totalArticles.value}'
                     : '0',
@@ -670,7 +670,7 @@ class _StatsRow extends GetView<HomeController> {
               const SizedBox(width: 10),
               _StatTile(
                 icon: Icons.category_rounded,
-                label: 'Topics',
+                label: 'topics'.tr,
                 value: controller.totalTopics.value > 0
                     ? '${controller.totalTopics.value}'
                     : '0',
@@ -768,7 +768,7 @@ class _QuickActionsRow extends StatelessWidget {
           ),
           _QuickActionTile(
             icon: Icons.workspace_premium_rounded,
-            label: 'Premium',
+            label: 'premium'.tr,
             color: AppColors.gold,
             onTap: () => Get.toNamed(Routes.SUBSCRIPTION),
           ),

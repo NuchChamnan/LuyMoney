@@ -46,7 +46,7 @@ const Map<String, String> kmKH = {
   'popular': 'ពេញនិយម',
   'best_value': 'ល្អបំផុត',
   'per_month': '/ខែ',
-  'save': 'សន្សំ',
+  'save': 'រក្សាទុក',
 
   // Content
   'videos': 'វីឌីអូ',
@@ -129,6 +129,24 @@ const Map<String, String> kmKH = {
   'field_required': 'វាល​នេះ​តម្រូវ​ឱ្យ​មាន។',
   'something_went_wrong': 'មានអ្វីមួយខុសឆ្គង។ សូម​ព្យាយាម​ម្តង​ទៀត។',
 
+  // Notifications
+  'expiry_7days': '⏰ ការជាវ Luy Money របស់អ្នកនឹងផុតកំណត់ក្នុង ៧ ថ្ងៃ។ សូមបន្ថែមឥឡូវ!',
+  'expiry_1day': '🔔 ថ្ងៃចុងក្រោយ! ការជាវរបស់អ្នកនឹងផុតកំណត់ថ្ងៃស្អែក។',
+  'expired_message': '🔒 ការជាវរបស់អ្នកបានផុតកំណត់។ សូមបន្ថែមដើម្បីចូលប្រើមាតិកា។',
+  'new_content_available': '📚 មាតិកាថ្មីអាចប្រើបានសម្រាប់អ្នក!',
+
+  // Payment
+  'payment_method': 'វិធីបង់ប្រាក់',
+  'credit_card': 'កាតឥណទាន',
+  'aba_pay': 'ABA Pay',
+  'wing_money': 'Wing Money',
+  'paypal': 'PayPal',
+  'pay_now': 'បង់ប្រាក់ឥឡូវ',
+  'order_summary': 'សង្ខេបការបញ្ជាទិញ',
+  'total': 'សរុប',
+  'payment_successful': 'ការបង់ប្រាក់ជោគជ័យ!',
+  'payment_confirmation': 'ការជាវរបស់អ្នកត្រូវបានដំណើរការ។',
+
   // General
   'ok': 'យល់ព្រម',
   'cancel': 'បោះបង់',
@@ -145,4 +163,113 @@ const Map<String, String> kmKH = {
   'are_you_sure': 'តើ​អ្នក​ប្រាកដ​ហើយ​ឬ?',
   'yes': 'បាទ/ចាស',
   'no': 'ទេ',
+
+  // Auth extras
+  'financial_freedom': 'សេរីភាពហិរញ្ញវត្ថុ',
+  'or': 'ឬ',
+  'biometric_login': 'ចូលដោយ Biometric',
+  'create_account': 'បង្កើតគណនី',
+  'join_thousands_tagline': 'ចូលរួមជាមួយអ្នករាប់ពាន់នាក់ដែលរៀនពីសេរីភាពហិរញ្ញវត្ថុ',
+  'your_full_name': 'ឈ្មោះពេញរបស់អ្នក',
+  'at_least_8_chars': 'យ៉ាងហោចណាស់ ៨ តួអក្សរ',
+  'repeat_password': 'វាយបញ្ចូលពាក្យសម្ងាត់ម្តងទៀត',
+  'reset_password_instruction':
+      'សូមបញ្ចូលអ៊ីមែលរបស់អ្នក ហើយយើងនឹងផ្ញើតំណកំណត់ពាក្យសម្ងាត់ឡើងវិញ។',
+  'email_sent': 'អ៊ីមែលបានផ្ញើ!',
+  'check_inbox_instruction':
+      'សូមពិនិត្យអ៊ីមែលរបស់អ្នក ហើយចុចតំណដើម្បីកំណត់ពាក្យសម្ងាត់ឡើងវិញ។',
+
+  // Home extras
+  'home': 'ទំព័រដើម',
+  'good_morning': 'អរុណសួស្តី',
+  'good_afternoon': 'ទិវាសួស្តី',
+  'good_evening': 'សាយណ្ហសួស្តី',
+  'no_videos_yet': 'មិនទាន់មានវីឌីអូ',
+  'browse_videos': 'រកមើលវីឌីអូ',
+  'no_articles_yet': 'មិនទាន់មានអត្ថបទ',
+  'browse_articles': 'រកមើលអត្ថបទ',
+  'unlock_premium_content': 'ដោះសោមាតិកាពិសេស',
+  'subscribe_to_access': 'ជាវដើម្បីចូលប្រើវីឌីអូ និងអត្ថបទទាំងអស់',
+  'topics': 'ប្រធានបទ',
+  'premium': 'ពិសេស',
+
+  // Video detail extras
+  'video_player_not_available': 'កម្មវិធីចាក់វីឌីអូមិនអាចប្រើបាន',
+  'views_label': 'ការមើល',
+  'comments': 'មតិយោបល់',
+  'no_comments_yet': 'មិនទាន់មានមតិយោបល់',
+  'more_videos': 'វីឌីអូផ្សេងទៀត',
+  'no_videos_found': 'រកមិនឃើញវីឌីអូ',
+  'show_less': 'បង្ហាញតិច',
+  'show_more': 'បង្ហាញបន្ថែម',
+  'like': 'ចូលចិត្ត',
+  'more': 'ច្រើនទៀត',
+  'add_to_playlist': 'បញ្ចូលទៅបញ្ជីចាក់',
+  'coming_soon': 'មកដល់ឆាប់ៗ',
+  'playlist_coming_soon': 'មុខងារបញ្ជីចាក់នឹងមកដល់ឆាប់ៗនេះ។',
+  'report_video': 'រាយការណ៍វីឌីអូ',
+  'why_reporting_video': 'ហេតុអ្វីបានជាអ្នករាយការណ៍វីឌីអូនេះ?',
+  'report_inappropriate': 'មាតិកាមិនសមរម្យ',
+  'report_spam': 'សារឥតបានការ ឬបំភាន់',
+  'report_copyright': 'រំលោភសិទ្ធិអ្នកនិពន្ធ',
+  'report_other': 'ផ្សេងទៀត',
+  'report_sent': 'របាយការណ៍បានផ្ញើ',
+  'report_thank_you': 'សូមអរគុណចំពោះការរាយការណ៍របស់អ្នក។',
+  'add_comment_hint': 'សរសេរមតិយោបល់...',
+  'just_now': 'ទើបណាស់',
+  'minutes_ago': '@count នាទីមុន',
+  'hours_ago': '@count ម៉ោងមុន',
+  'days_ago': '@count ថ្ងៃមុន',
+
+  // Subscription extras
+  'unlock_financial_knowledge': 'ដោះសោចំណេះដឹងហិរញ្ញវត្ថុ',
+  'access_all_content': 'ចូលប្រើវីឌីអូ អត្ថបទ និងគំនិតជំនាញហិរញ្ញវត្ថុទាំងអស់',
+  'feature_unlimited_videos': 'ចូលប្រើវីឌីអូគ្មានកំណត់',
+  'feature_premium_articles': 'អត្ថបទ និងមគ្គុទ្ទេសក៍ពិសេស',
+  'feature_expert_insights': 'ការវិភាគហិរញ្ញវត្ថុពីអ្នកជំនាញ',
+  'feature_downloadable_resources': 'ឯកសារអាចទាញយកបាន',
+  'feature_community_access': 'ចូលប្រើសហគមន៍',
+  'feature_cancel_anytime': 'អាចបោះបង់ពេលណាក៏បាន',
+  'whats_included': 'អ្វីដែលរួមបញ្ចូល៖',
+  'days_access': 'ប្រើបាន @count ថ្ងៃ',
+
+  // Support extras
+  'start_conversation': 'ចាប់ផ្តើមការសន្ទនា',
+  'team_replies_24h': 'ក្រុមការងាររបស់យើងឆ្លើយតបក្នុងរយៈពេល ២៤ ម៉ោង',
+  'join_our_telegram': 'ចូលរួម Telegram របស់យើង',
+  'telegram_description':
+      'ទទួលជំនួយភ្លាមៗ ចែករំលែកគំនិត និងភ្ជាប់ទំនាក់ទំនងជាមួយសហគមន៍ហិរញ្ញវត្ថុរបស់យើង។',
+
+  // Promo / Referral
+  'name_required': 'ត្រូវការឈ្មោះ។',
+  'invalid_referral_code': 'កូដណែនាំមិនត្រឹមត្រូវ។',
+  'cannot_use_own_referral': 'អ្នកមិនអាចប្រើកូដណែនាំផ្ទាល់ខ្លួនបានទេ។',
+  'referral_applied': 'កូដណែនាំត្រូវបានប្រើដោយជោគជ័យ!',
+  'subscription': 'ការជាវ',
+  'enter_promo_code': 'បញ្ចូលកូដប្រូម៉ូសិន',
+  'invalid_promo_code': 'កូដប្រូម៉ូសិនមិនត្រឹមត្រូវ។',
+  'promo_code_expired': 'កូដប្រូម៉ូសិននេះបានផុតកំណត់។',
+  'promo_code_maxed': 'កូដប្រូម៉ូសិននេះបានដល់កំណត់ប្រើប្រាស់។',
+  'promo_not_for_plan': 'កូដប្រូម៉ូសិននេះមិនត្រឹមត្រូវសម្រាប់គម្រោងដែលបានជ្រើសរើស។',
+  'promo_error': 'បរាជ័យក្នុងការប្រើកូដប្រូម៉ូសិន។ សូមព្យាយាមម្តងទៀត។',
+  'apply': 'ប្រើ',
+  'update': 'ធ្វើបច្ចុប្បន្នភាព',
+
+  // Payment extras
+  'duration': 'រយៈពេល',
+  'days_count': '@count ថ្ងៃ',
+  'amount': 'ចំនួនទឹកប្រាក់',
+  'aba_bank_account': 'គណនីធនាគារ ABA',
+  'account_number': 'លេខគណនី',
+  'account_name': 'ឈ្មោះគណនី',
+  'copied_value': 'បានចម្លង៖ @value',
+  'copy': 'ចម្លង',
+  'payment_step_1': 'បើក ABA Mobile App',
+  'payment_step_2': 'ចុច QR Pay ហើយ Scan QR Code',
+  'payment_step_3': 'បញ្ជាក់ចំនួនទឹកប្រាក់',
+  'payment_step_4': 'ចុច "ខ្ញុំបានបង់ប្រាក់រួចរាល់" ខាងក្រោម',
+  'how_to_pay': 'របៀបបង់ប្រាក់',
+  'processing': 'កំពុងដំណើរការ...',
+  'ive_completed_payment': 'ខ្ញុំបានបង់ប្រាក់រួចរាល់',
+  'view_link': 'មើល Link',
 };

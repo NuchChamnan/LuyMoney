@@ -101,6 +101,7 @@ class VideoModel {
     bool? isBookmarked,
     bool? isLiked,
     double? watchProgress,
+    int? viewCount,
   }) {
     return VideoModel(
       id: id,
@@ -113,7 +114,7 @@ class VideoModel {
       duration: duration,
       publishedAt: publishedAt,
       isPremium: isPremium,
-      viewCount: viewCount,
+      viewCount: viewCount ?? this.viewCount,
       isBookmarked: isBookmarked ?? this.isBookmarked,
       isLiked: isLiked ?? this.isLiked,
       watchProgress: watchProgress ?? this.watchProgress,
@@ -127,6 +128,7 @@ class ArticleModel {
   final String excerpt;
   final String content;
   final String coverImageUrl;
+  final String linkUrl;
   final String category;
   final String authorName;
   final String? authorAvatarUrl;
@@ -142,6 +144,7 @@ class ArticleModel {
     required this.excerpt,
     required this.content,
     required this.coverImageUrl,
+    this.linkUrl = '',
     required this.category,
     required this.authorName,
     this.authorAvatarUrl,
@@ -160,6 +163,7 @@ class ArticleModel {
       excerpt: data['excerpt'] ?? '',
       content: data['content'] ?? '',
       coverImageUrl: data['coverImageUrl'] ?? '',
+      linkUrl: data['linkUrl'] ?? '',
       category: data['category'] ?? 'finance',
       authorName: data['authorName'] ?? 'Luy Money',
       authorAvatarUrl: data['authorAvatarUrl'],
@@ -178,6 +182,7 @@ class ArticleModel {
         'excerpt': excerpt,
         'content': content,
         'coverImageUrl': coverImageUrl,
+        'linkUrl': linkUrl,
         'category': category,
         'authorName': authorName,
         'authorAvatarUrl': authorAvatarUrl,
@@ -193,6 +198,7 @@ class ArticleModel {
       excerpt: excerpt,
       content: content,
       coverImageUrl: coverImageUrl,
+      linkUrl: linkUrl,
       category: category,
       authorName: authorName,
       authorAvatarUrl: authorAvatarUrl,

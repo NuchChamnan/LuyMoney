@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../data/models/chat_model.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/themes/app_themes.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../controllers/admin_controller.dart';
 
 class AdminChatsView extends GetView<AdminController> {
@@ -282,7 +283,7 @@ class _ConversationPanel extends GetView<AdminController> {
 
         // Reply input
         Container(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+          padding: const EdgeInsets.fromLTRB(8, 8, 12, 12),
           decoration: BoxDecoration(
             color: ext.surface,
             border: Border(top: BorderSide(color: ext.border)),
@@ -291,6 +292,20 @@ class _ConversationPanel extends GetView<AdminController> {
             top: false,
             child: Row(
               children: [
+                // Image picker button
+                Obx(() => IconButton(
+                      onPressed: controller.isSendingImage.value
+                          ? null
+                          : controller.sendAdminImage,
+                      icon: controller.isSendingImage.value
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: ext.primary))
+                          : Icon(Icons.image_outlined, color: ext.primary),
+                      tooltip: 'Send image',
+                    )),
                 Expanded(
                   child: TextField(
                     controller: controller.adminReplyController,
@@ -401,30 +416,59 @@ class _AdminMessageBubble extends StatelessWidget {
                   ? CrossAxisAlignment.end
                   : CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: isAdmin ? AppColors.goldGradient : null,
-                    color: isAdmin ? null : ext.card,
+                if (message.type == MessageType.image &&
+                    message.imageUrl != null)
+                  ClipRRect(
                     borderRadius: BorderRadius.only(
                       topLeft: const Radius.circular(16),
                       topRight: const Radius.circular(16),
                       bottomLeft: Radius.circular(isAdmin ? 16 : 4),
                       bottomRight: Radius.circular(isAdmin ? 4 : 16),
                     ),
-                    border: isAdmin
-                        ? null
-                        : Border.all(color: ext.border),
-                  ),
-                  child: Text(
-                    message.message,
-                    style: TextStyle(
-                      color: isAdmin ? Colors.black : ext.textPrimary,
-                      fontSize: 14,
+                    child: CachedNetworkImage(
+                      imageUrl: message.imageUrl!,
+                      width: 200,
+                      fit: BoxFit.cover,
+                      placeholder: (_, _) => Container(
+                        width: 200,
+                        height: 120,
+                        color: ext.surface,
+                        child: Center(
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: ext.primary)),
+                      ),
+                      errorWidget: (_, _, _) => Container(
+                        width: 200,
+                        height: 120,
+                        color: ext.surface,
+                        child: Icon(Icons.broken_image_outlined,
+                            color: ext.textSecondary),
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: isAdmin ? AppColors.goldGradient : null,
+                      color: isAdmin ? null : ext.card,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft: Radius.circular(isAdmin ? 16 : 4),
+                        bottomRight: Radius.circular(isAdmin ? 4 : 16),
+                      ),
+                      border: isAdmin ? null : Border.all(color: ext.border),
+                    ),
+                    child: Text(
+                      message.message,
+                      style: TextStyle(
+                        color: isAdmin ? Colors.black : ext.textPrimary,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
-                ),
                 const SizedBox(height: 2),
                 Text(
                   DateFormat('HH:mm').format(message.timestamp),

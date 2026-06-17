@@ -225,6 +225,24 @@ class ContentController extends GetxController {
   List<ArticleModel> get bookmarkedArticles =>
       _allArticles.where((a) => a.isBookmarked).toList();
 
+  // ── View count ─────────────────────────────────────────────────────────────
+  Future<void> incrementViewCount(String videoId) async {
+    try {
+      await _firestore.collection('videos').doc(videoId).update({
+        'viewCount': FieldValue.increment(1),
+      });
+      // Optimistic local update so the UI reflects the new count immediately.
+      final i = _allVideos.indexWhere((v) => v.id == videoId);
+      if (i != -1) {
+        _allVideos[i] =
+            _allVideos[i].copyWith(viewCount: _allVideos[i].viewCount + 1);
+        _applyVideoFilter();
+      }
+    } catch (e) {
+      Get.log('Error incrementing view count: $e');
+    }
+  }
+
   // ── Comments ───────────────────────────────────────────────────────────────
   void listenToComments(String videoId) {
     if (_commentsVideoId == videoId) return;

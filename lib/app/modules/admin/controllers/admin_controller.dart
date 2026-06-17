@@ -32,6 +32,7 @@ class AdminController extends GetxController {
   final articles = <ArticleModel>[].obs;
   final isLoadingContent = false.obs;
   final contentTab = 0.obs; // 0=videos, 1=articles
+  final isUploadingArticleImage = false.obs;
 
   // ── Categories ───────────────────────────────────────────────────────────────
   final categories = <String>[
@@ -65,6 +66,7 @@ class AdminController extends GetxController {
   final selectedChatUserName = ''.obs;
   final selectedChatMessages = <ChatModel>[].obs;
   final isSendingReply = false.obs;
+  final isSendingImage = false.obs;
   final adminReplyController = TextEditingController();
 
   // ── Form controllers ─────────────────────────────────────────────────────────
@@ -388,14 +390,39 @@ class AdminController extends GetxController {
     }
   }
 
+  /// Picks an image from the device gallery and uploads it to Firebase
+  /// Storage under `articles/`, returning the public download URL.
+  Future<String?> pickAndUploadArticleImage() async {
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (picked == null) return null;
+
+    isUploadingArticleImage.value = true;
+    try {
+      final ext = picked.path.split('.').last;
+      final ref = _storage
+          .ref('articles/${DateTime.now().millisecondsSinceEpoch}.$ext');
+      await ref.putFile(File(picked.path));
+      return await ref.getDownloadURL();
+    } catch (e) {
+      AppSnackbar.error('Failed to upload image: $e');
+      return null;
+    } finally {
+      isUploadingArticleImage.value = false;
+    }
+  }
+
   Future<void> addArticle({
     required String title,
     required String coverImageUrl,
+    required String linkUrl,
     required String category,
     required String description,
   }) async {
-    if (title.isEmpty) {
-      AppSnackbar.error('Title is required');
+    if (title.isEmpty || coverImageUrl.isEmpty) {
+      AppSnackbar.error('Title and image are required');
       return;
     }
     isLoading.value = true;
@@ -405,6 +432,7 @@ class AdminController extends GetxController {
         'excerpt': description.length > 100 ? '${description.substring(0, 100)}...' : description,
         'content': description,
         'coverImageUrl': coverImageUrl,
+        'linkUrl': linkUrl,
         'authorName': 'Luy Money',
         'category': (category.isEmpty ? 'finance' : category).toLowerCase(),
         'isPremium': true,
@@ -417,6 +445,37 @@ class AdminController extends GetxController {
       AppSnackbar.success('Article added successfully');
     } catch (e) {
       AppSnackbar.error('Failed to add article: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> updateArticle({
+    required String id,
+    required String title,
+    required String coverImageUrl,
+    required String linkUrl,
+    required String category,
+    required String description,
+  }) async {
+    if (title.isEmpty || coverImageUrl.isEmpty) {
+      AppSnackbar.error('Title and image are required');
+      return;
+    }
+    isLoading.value = true;
+    try {
+      await _db.collection('articles').doc(id).update({
+        'title': title,
+        'excerpt': description.length > 100 ? '${description.substring(0, 100)}...' : description,
+        'content': description,
+        'coverImageUrl': coverImageUrl,
+        'linkUrl': linkUrl,
+        'category': category.toLowerCase(),
+      });
+      await fetchContent();
+      AppSnackbar.success('Article updated successfully');
+    } catch (e) {
+      AppSnackbar.error('Failed to update article: $e');
     } finally {
       isLoading.value = false;
     }
@@ -620,6 +679,34 @@ class AdminController extends GetxController {
     }
   }
 
+  Future<void> updateVideo({
+    required String id,
+    required String title,
+    required String videoUrl,
+    required String category,
+    required String description,
+  }) async {
+    if (title.isEmpty || videoUrl.isEmpty) {
+      AppSnackbar.error('Title and Video URL are required');
+      return;
+    }
+    isLoading.value = true;
+    try {
+      await _db.collection('videos').doc(id).update({
+        'title': title,
+        'videoUrl': videoUrl,
+        'description': description,
+        'category': category.toLowerCase(),
+      });
+      await fetchContent();
+      AppSnackbar.success('Video updated successfully');
+    } catch (e) {
+      AppSnackbar.error('Failed to update video: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> deleteVideo(String id) async {
     await _db.collection('videos').doc(id).delete();
     await fetchContent();
@@ -706,6 +793,44 @@ class AdminController extends GetxController {
       AppSnackbar.error('Failed to send reply: $e');
     } finally {
       isSendingReply.value = false;
+    }
+  }
+
+  Future<void> sendAdminImage() async {
+    if (selectedChatUserId.value.isEmpty) return;
+    final XFile? file =
+        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (file == null) return;
+
+    isSendingImage.value = true;
+    try {
+      final ref = _storage.ref(
+          'chat_images/admin_${selectedChatUserId.value}/${DateTime.now().millisecondsSinceEpoch}');
+      await ref.putFile(File(file.path));
+      final imageUrl = await ref.getDownloadURL();
+
+      await _db
+          .collection('chats')
+          .doc(selectedChatUserId.value)
+          .collection('messages')
+          .add({
+        'senderId': 'admin',
+        'message': '[Image]',
+        'timestamp': FieldValue.serverTimestamp(),
+        'type': 'image',
+        'imageUrl': imageUrl,
+        'isFromAdmin': true,
+      });
+      await _db.collection('chats').doc(selectedChatUserId.value).set({
+        'lastMessage': '[Image]',
+        'lastMessageAt': FieldValue.serverTimestamp(),
+        'unreadByAdmin': 0,
+      }, SetOptions(merge: true));
+      await fetchAdminChats();
+    } catch (e) {
+      AppSnackbar.error('Failed to send image: $e');
+    } finally {
+      isSendingImage.value = false;
     }
   }
 
