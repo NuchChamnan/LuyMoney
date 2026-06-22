@@ -165,7 +165,10 @@ class HomeView extends GetView<HomeController> {
               switch (i) {
                 case 1: Get.toNamed(Routes.VIDEOS); break;
                 case 2: Get.toNamed(Routes.ARTICLES); break;
-                case 3: Get.toNamed(Routes.SUPPORT); break;
+                case 3:
+                  Get.toNamed(Routes.NOTIFICATIONS)
+                      ?.then((_) => controller.loadUnreadNotifications());
+                  break;
                 case 4: Get.toNamed(Routes.SETTINGS); break;
               }
             },
@@ -186,9 +189,17 @@ class HomeView extends GetView<HomeController> {
                 label: 'articles'.tr,
               ),
               NavigationDestination(
-                icon: const Icon(Icons.support_agent_outlined),
-                selectedIcon: const Icon(Icons.support_agent_rounded, color: AppColors.gold),
-                label: 'support'.tr,
+                icon: Obx(() => Badge(
+                      isLabelVisible: controller.unreadNotifications.value > 0,
+                      label: Text('${controller.unreadNotifications.value}'),
+                      child: const Icon(Icons.notifications_outlined),
+                    )),
+                selectedIcon: Obx(() => Badge(
+                      isLabelVisible: controller.unreadNotifications.value > 0,
+                      label: Text('${controller.unreadNotifications.value}'),
+                      child: const Icon(Icons.notifications_rounded, color: AppColors.gold),
+                    )),
+                label: 'notifications'.tr,
               ),
               NavigationDestination(
                 icon: const Icon(Icons.settings_outlined),

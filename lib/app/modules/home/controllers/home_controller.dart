@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import '../../../data/models/banner_model.dart';
 import '../../../data/models/content_model.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/storage_service.dart';
 
 class HomeController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
+  final StorageService _storage = Get.find<StorageService>();
   final _firestore = FirebaseFirestore.instance;
 
   final currentIndex   = 0.obs;
@@ -17,11 +19,35 @@ class HomeController extends GetxController {
   final totalVideos    = 0.obs;
   final totalArticles  = 0.obs;
   final totalTopics    = 0.obs;
+  final unreadNotifications = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
     loadRecentContent();
+    loadUnreadNotifications();
+  }
+
+  Future<void> loadUnreadNotifications() async {
+    try {
+      final snap = await _firestore
+          .collection('admin_notifications')
+          .orderBy('sentAt', descending: true)
+          .limit(100)
+          .get();
+      final readIds = _storage.readNotificationIds;
+      var count = 0;
+      for (final doc in snap.docs) {
+        final target = doc.data()['target'] ?? 'all';
+        final isRelevant = target == 'all' ||
+            (target == 'active' && hasActiveSubscription) ||
+            (target == 'expiring' && isExpiringSoon);
+        if (isRelevant && !readIds.contains(doc.id)) count++;
+      }
+      unreadNotifications.value = count;
+    } catch (e) {
+      Get.log('Error loading unread notifications: $e');
+    }
   }
 
   Future<void> loadRecentContent() async {

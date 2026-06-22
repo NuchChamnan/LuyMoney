@@ -157,11 +157,36 @@ class _ListCard extends StatelessWidget {
                             gradient: AppColors.goldGradient,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('Premium',
-                              style: TextStyle(
+                          child: Text('premium'.tr,
+                              style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700)),
+                        ),
+                      ),
+
+                    // Category badge (top-right) — always visible, never hidden in meta text
+                    if (video.category.isNotEmpty)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.65),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            video.category.isNotEmpty
+                                ? video.category[0].toUpperCase() +
+                                    video.category.substring(1)
+                                : video.category,
+                            style: const TextStyle(
+                                color: AppColors.gold,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ),
                   ],
@@ -215,12 +240,6 @@ class _ListCard extends StatelessWidget {
                                 style: TextStyle(
                                     color: ext.textSecondary, fontSize: 12),
                               ),
-                              const SizedBox(width: 4),
-                              Text('•',
-                                  style: TextStyle(
-                                      color: ext.textSecondary, fontSize: 12)),
-                              const SizedBox(width: 4),
-                              _CategoryChip(label: video.category, ext: ext),
                               const SizedBox(width: 4),
                               Text('•',
                                   style: TextStyle(

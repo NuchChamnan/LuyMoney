@@ -77,8 +77,6 @@ class ArticlesView extends GetView<ContentController> {
                     padding: const EdgeInsets.only(bottom: 16),
                     child: ArticleCard(
                       article: article,
-                      onBookmark: () =>
-                          controller.toggleArticleBookmark(article.id),
                       onTap: () {
                         final auth = Get.find<AuthService>();
                         if (article.isPremium && !auth.hasActiveSubscription) {

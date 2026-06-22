@@ -26,6 +26,9 @@ class StorageService extends GetxService {
   static const String bookmarkedVideosKey = 'bookmarked_videos';
   static const String bookmarkedArticlesKey = 'bookmarked_articles';
   static const String likedVideosKey = 'liked_videos';
+  static const String likedArticlesKey = 'liked_articles';
+  static const String pinnedArticlesKey = 'pinned_articles';
+  static const String readNotificationsKey = 'read_notifications';
 
   // Bookmarks
   List<String> get bookmarkedVideoIds =>
@@ -72,4 +75,49 @@ class StorageService extends GetxService {
   }
 
   bool isVideoLiked(String id) => likedVideoIds.contains(id);
+
+  List<String> get likedArticleIds =>
+      _box.read<List>(likedArticlesKey)?.cast<String>() ?? [];
+
+  Future<void> toggleArticleLike(String id) async {
+    final ids = likedArticleIds;
+    if (ids.contains(id)) {
+      ids.remove(id);
+    } else {
+      ids.add(id);
+    }
+    await write(likedArticlesKey, ids);
+  }
+
+  bool isArticleLiked(String id) => likedArticleIds.contains(id);
+
+  // Pins (kept locally per-device — pinned posts surface at the top of the list)
+  List<String> get pinnedArticleIds =>
+      _box.read<List>(pinnedArticlesKey)?.cast<String>() ?? [];
+
+  Future<void> toggleArticlePinned(String id) async {
+    final ids = pinnedArticleIds;
+    if (ids.contains(id)) {
+      ids.remove(id);
+    } else {
+      ids.add(id);
+    }
+    await write(pinnedArticlesKey, ids);
+  }
+
+  bool isArticlePinned(String id) => pinnedArticleIds.contains(id);
+
+  // Notifications read-state (per-device — admin_notifications has no per-user doc)
+  List<String> get readNotificationIds =>
+      _box.read<List>(readNotificationsKey)?.cast<String>() ?? [];
+
+  Future<void> markNotificationRead(String id) async {
+    final ids = readNotificationIds;
+    if (!ids.contains(id)) {
+      ids.add(id);
+      await write(readNotificationsKey, ids);
+    }
+  }
+
+  bool isNotificationRead(String id) => readNotificationIds.contains(id);
 }

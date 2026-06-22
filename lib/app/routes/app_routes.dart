@@ -14,6 +14,7 @@ abstract class Routes {
   static const ARTICLES = '/content/articles';
   static const ARTICLE_DETAIL = '/content/articles/:id';
   static const SUPPORT = '/support';
+  static const NOTIFICATIONS = '/notifications';
   static const SETTINGS = '/settings';
   static const PROFILE = '/settings/profile';
   static const ADMIN = '/admin';

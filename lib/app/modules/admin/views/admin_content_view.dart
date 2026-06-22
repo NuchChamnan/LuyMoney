@@ -22,18 +22,23 @@ class AdminContentView extends GetView<AdminController> {
               Expanded(
                 child: Row(
                   children: [
-                    _TabBtn(label: 'Videos', index: 0, ext: ext),
+                    _TabBtn(label: 'admin_videos_tab'.tr, index: 0, ext: ext),
                     const SizedBox(width: 8),
-                    _TabBtn(label: 'Articles', index: 1, ext: ext),
+                    _TabBtn(label: 'admin_articles_tab'.tr, index: 1, ext: ext),
                   ],
                 ),
+              ),
+              IconButton(
+                icon: Icon(Icons.sell_outlined, color: ext.textSecondary),
+                onPressed: () => _showManageCategoriesDialog(context, ext),
+                tooltip: 'admin_manage_categories'.tr,
               ),
               IconButton(
                 icon: Icon(Icons.add_circle, color: ext.primary, size: 28),
                 onPressed: () => controller.contentTab.value == 0
                     ? _showAddDialog(context, ext)
                     : _showArticleDialog(context, ext),
-                tooltip: 'Add Content',
+                tooltip: 'admin_add_content'.tr,
               ),
             ],
           ),
@@ -59,7 +64,7 @@ class AdminContentView extends GetView<AdminController> {
   Widget _buildVideosList(BuildContext context, AppColorExtension ext) {
     if (controller.videos.isEmpty) {
       return Center(
-          child: Text('No videos yet',
+          child: Text('admin_no_videos_yet'.tr,
               style: TextStyle(color: ext.textSecondary)));
     }
     return RefreshIndicator(
@@ -85,7 +90,7 @@ class AdminContentView extends GetView<AdminController> {
   Widget _buildArticlesList(BuildContext context, AppColorExtension ext) {
     if (controller.articles.isEmpty) {
       return Center(
-          child: Text('No articles yet',
+          child: Text('admin_no_articles_yet'.tr,
               style: TextStyle(color: ext.textSecondary)));
     }
     return RefreshIndicator(
@@ -121,7 +126,7 @@ class AdminContentView extends GetView<AdminController> {
         backgroundColor: ext.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Add Video',
+          'admin_add_video_title'.tr,
           style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700),
         ),
         content: SizedBox(
@@ -131,16 +136,16 @@ class AdminContentView extends GetView<AdminController> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _DialogField(label: 'Title *', controller: titleCtrl, ext: ext),
+                _DialogField(label: 'admin_title_required'.tr, controller: titleCtrl, ext: ext),
                 const SizedBox(height: 12),
                 _DialogField(
-                    label: 'YouTube URL *',
+                    label: 'admin_youtube_url_required'.tr,
                     controller: urlCtrl,
                     ext: ext),
                 const SizedBox(height: 16),
 
                 // ── Category picker ────────────────────────────────────────
-                Text('Category',
+                Text('category'.tr,
                     style: TextStyle(
                         color: ext.textSecondary,
                         fontSize: 13,
@@ -205,7 +210,7 @@ class AdminContentView extends GetView<AdminController> {
                               children: [
                                 Icon(Icons.add, color: ext.primary, size: 16),
                                 const SizedBox(width: 4),
-                                Text('New',
+                                Text('admin_new_category'.tr,
                                     style: TextStyle(
                                         color: ext.primary,
                                         fontSize: 13,
@@ -219,7 +224,7 @@ class AdminContentView extends GetView<AdminController> {
 
                 const SizedBox(height: 12),
                 _DialogField(
-                    label: 'Description',
+                    label: 'admin_description_label'.tr,
                     controller: descCtrl,
                     ext: ext,
                     maxLines: 3),
@@ -230,7 +235,7 @@ class AdminContentView extends GetView<AdminController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text('Cancel', style: TextStyle(color: ext.textSecondary)),
+            child: Text('cancel'.tr, style: TextStyle(color: ext.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -247,7 +252,7 @@ class AdminContentView extends GetView<AdminController> {
               backgroundColor: ext.primary,
               foregroundColor: Colors.black,
             ),
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
       ),
@@ -273,7 +278,7 @@ class AdminContentView extends GetView<AdminController> {
           backgroundColor: ext.card,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
-            isEdit ? 'Edit Article' : 'Add Article',
+            isEdit ? 'admin_edit_article_title'.tr : 'admin_add_article_title'.tr,
             style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700),
           ),
           content: SizedBox(
@@ -303,7 +308,7 @@ class AdminContentView extends GetView<AdminController> {
                       ),
                     ),
                   _DialogField(
-                      label: 'Image URL *', controller: imageCtrl, ext: ext),
+                      label: 'admin_image_url_required'.tr, controller: imageCtrl, ext: ext),
                   const SizedBox(height: 8),
                   Obx(() => OutlinedButton.icon(
                         onPressed: controller.isUploadingArticleImage.value
@@ -326,8 +331,8 @@ class AdminContentView extends GetView<AdminController> {
                                 color: ext.primary, size: 18),
                         label: Text(
                           controller.isUploadingArticleImage.value
-                              ? 'Uploading...'
-                              : 'Upload from device',
+                              ? 'admin_uploading'.tr
+                              : 'admin_upload_from_device'.tr,
                           style: TextStyle(color: ext.primary),
                         ),
                         style: OutlinedButton.styleFrom(
@@ -337,25 +342,25 @@ class AdminContentView extends GetView<AdminController> {
                         ),
                       )),
                   const SizedBox(height: 12),
-                  _DialogField(label: 'Title *', controller: titleCtrl, ext: ext),
+                  _DialogField(label: 'admin_title_required'.tr, controller: titleCtrl, ext: ext),
                   const SizedBox(height: 12),
                   _DialogField(
-                      label: 'Link (optional)', controller: linkCtrl, ext: ext),
+                      label: 'admin_link_optional'.tr, controller: linkCtrl, ext: ext),
                   const SizedBox(height: 4),
                   Text(
-                    'Link can be an in-app route (e.g. /subscription) or an external URL (e.g. https://...)',
+                    'admin_link_hint'.tr,
                     style: TextStyle(color: ext.textSecondary, fontSize: 11),
                   ),
                   const SizedBox(height: 12),
                   _DialogField(
-                      label: 'Caption (optional)',
+                      label: 'admin_caption_optional'.tr,
                       controller: captionCtrl,
                       ext: ext,
                       maxLines: 3),
                   const SizedBox(height: 16),
 
                   // ── Category picker ────────────────────────────────────────
-                  Text('Category',
+                  Text('category'.tr,
                       style: TextStyle(
                           color: ext.textSecondary,
                           fontSize: 13,
@@ -399,7 +404,7 @@ class AdminContentView extends GetView<AdminController> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text('Cancel', style: TextStyle(color: ext.textSecondary)),
+              child: Text('cancel'.tr, style: TextStyle(color: ext.textSecondary)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -430,10 +435,119 @@ class AdminContentView extends GetView<AdminController> {
                 backgroundColor: ext.primary,
                 foregroundColor: Colors.black,
               ),
-              child: const Text('Save'),
+              child: Text('save'.tr),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── Manage Categories — always-visible entry point so Admin can edit or
+  // delete ANY category, not just the ones reachable via long-press while
+  // adding a video. ───────────────────────────────────────────────────────
+  void _showManageCategoriesDialog(BuildContext context, AppColorExtension ext) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ext.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('admin_manage_categories'.tr,
+            style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700)),
+        content: SizedBox(
+          width: 380,
+          child: Obx(() => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...controller.categories.map((cat) => Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                cat[0].toUpperCase() + cat.substring(1),
+                                style: TextStyle(color: ext.textPrimary, fontSize: 14),
+                              ),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.edit_outlined,
+                                  size: 18, color: ext.primary),
+                              onPressed: () =>
+                                  _showEditCategoryDialog(context, ext, cat),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline,
+                                  size: 18, color: Colors.red),
+                              onPressed: () =>
+                                  _confirmDeleteCategory(context, ext, cat),
+                            ),
+                          ],
+                        ),
+                      )),
+                  const Divider(),
+                  GestureDetector(
+                    onTap: () =>
+                        _showAddCategoryDialog(ctx, ext, RxString('')),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          Icon(Icons.add, color: ext.primary, size: 18),
+                          const SizedBox(width: 6),
+                          Text('admin_new_category'.tr,
+                              style: TextStyle(
+                                  color: ext.primary,
+                                  fontWeight: FontWeight.w600)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text('done'.tr, style: TextStyle(color: ext.textSecondary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteCategory(
+      BuildContext context, AppColorExtension ext, String category) {
+    if (controller.categories.length <= 1) {
+      Get.snackbar('', 'admin_min_one_category'.tr,
+          backgroundColor: Colors.red.shade800, colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (confirm) => AlertDialog(
+        backgroundColor: ext.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('admin_remove_category_title'.tr,
+            style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700)),
+        content: Text(
+            'admin_remove_category_confirm'.trParams({'category': category}),
+            style: TextStyle(color: ext.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(confirm).pop(),
+            child: Text('cancel'.tr, style: TextStyle(color: ext.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(confirm).pop();
+              controller.deleteCategory(category);
+            },
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, foregroundColor: Colors.white),
+            child: Text('remove'.tr),
+          ),
+        ],
       ),
     );
   }
@@ -459,7 +573,7 @@ class AdminContentView extends GetView<AdminController> {
             // Edit
             ListTile(
               leading: Icon(Icons.edit_outlined, color: ext.primary),
-              title: Text('Edit Category',
+              title: Text('admin_edit_category_title'.tr,
                   style: TextStyle(color: ext.textPrimary)),
               contentPadding: EdgeInsets.zero,
               onTap: () {
@@ -472,28 +586,35 @@ class AdminContentView extends GetView<AdminController> {
             // Delete
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Remove Category',
-                  style: TextStyle(color: Colors.red)),
+              title: Text('admin_remove_category_title'.tr,
+                  style: const TextStyle(color: Colors.red)),
               contentPadding: EdgeInsets.zero,
               onTap: () {
                 Navigator.of(ctx).pop();
+                if (controller.categories.length <= 1) {
+                  Get.snackbar('', 'admin_min_one_category'.tr,
+                      backgroundColor: Colors.red.shade800,
+                      colorText: Colors.white,
+                      snackPosition: SnackPosition.BOTTOM);
+                  return;
+                }
                 showDialog(
                   context: context,
                   builder: (confirm) => AlertDialog(
                     backgroundColor: ext.card,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16)),
-                    title: Text('Remove Category',
+                    title: Text('admin_remove_category_title'.tr,
                         style: TextStyle(
                             color: ext.textPrimary,
                             fontWeight: FontWeight.w700)),
                     content: Text(
-                        'Remove "$category"? Videos using this category will keep the old value.',
+                        'admin_remove_category_confirm'.trParams({'category': category}),
                         style: TextStyle(color: ext.textSecondary)),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(confirm).pop(),
-                        child: Text('Cancel',
+                        child: Text('cancel'.tr,
                             style: TextStyle(color: ext.textSecondary)),
                       ),
                       ElevatedButton(
@@ -511,7 +632,7 @@ class AdminContentView extends GetView<AdminController> {
                         style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white),
-                        child: const Text('Remove'),
+                        child: Text('remove'.tr),
                       ),
                     ],
                   ),
@@ -523,7 +644,7 @@ class AdminContentView extends GetView<AdminController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Cancel',
+            child: Text('cancel'.tr,
                 style: TextStyle(color: ext.textSecondary)),
           ),
         ],
@@ -534,9 +655,9 @@ class AdminContentView extends GetView<AdminController> {
   void _showEditCategoryDialog(
     BuildContext context,
     AppColorExtension ext,
-    String oldName,
-    RxString selectedCategory,
-  ) {
+    String oldName, [
+    RxString? selectedCategory,
+  ]) {
     final editCtrl = TextEditingController(
         text: oldName[0].toUpperCase() + oldName.substring(1));
     showDialog(
@@ -544,7 +665,7 @@ class AdminContentView extends GetView<AdminController> {
       builder: (ctx) => AlertDialog(
         backgroundColor: ext.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Edit Category',
+        title: Text('admin_edit_category_title'.tr,
             style: TextStyle(
                 color: ext.textPrimary, fontWeight: FontWeight.w700)),
         content: TextField(
@@ -553,7 +674,7 @@ class AdminContentView extends GetView<AdminController> {
           textCapitalization: TextCapitalization.words,
           style: TextStyle(color: ext.textPrimary),
           decoration: InputDecoration(
-            hintText: 'Category name',
+            hintText: 'admin_category_name_hint'.tr,
             hintStyle: TextStyle(color: ext.textSecondary),
             filled: true,
             fillColor: ext.surface,
@@ -566,7 +687,7 @@ class AdminContentView extends GetView<AdminController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Cancel',
+            child: Text('cancel'.tr,
                 style: TextStyle(color: ext.textSecondary)),
           ),
           ElevatedButton(
@@ -574,10 +695,10 @@ class AdminContentView extends GetView<AdminController> {
               final newName = editCtrl.text.trim();
               if (newName.isEmpty) return;
               Navigator.of(ctx).pop();
-              final wasSelected = selectedCategory.value == oldName;
+              final wasSelected = selectedCategory?.value == oldName;
               controller.updateCategory(oldName, newName).then((_) {
                 if (wasSelected) {
-                  selectedCategory.value = newName.toLowerCase();
+                  selectedCategory?.value = newName.toLowerCase();
                 }
               });
             },
@@ -585,7 +706,7 @@ class AdminContentView extends GetView<AdminController> {
               backgroundColor: ext.primary,
               foregroundColor: Colors.black,
             ),
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
       ),
@@ -603,7 +724,7 @@ class AdminContentView extends GetView<AdminController> {
       builder: (ctx) => AlertDialog(
         backgroundColor: ext.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text('Add Category',
+        title: Text('admin_add_category_title'.tr,
             style: TextStyle(
                 color: ext.textPrimary, fontWeight: FontWeight.w700)),
         content: TextField(
@@ -612,7 +733,7 @@ class AdminContentView extends GetView<AdminController> {
           textCapitalization: TextCapitalization.words,
           style: TextStyle(color: ext.textPrimary),
           decoration: InputDecoration(
-            hintText: 'e.g. Crypto, Real Estate...',
+            hintText: 'admin_category_example_hint'.tr,
             hintStyle: TextStyle(color: ext.textSecondary),
             filled: true,
             fillColor: ext.surface,
@@ -633,7 +754,7 @@ class AdminContentView extends GetView<AdminController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: Text('Cancel',
+            child: Text('cancel'.tr,
                 style: TextStyle(color: ext.textSecondary)),
           ),
           ElevatedButton(
@@ -649,7 +770,7 @@ class AdminContentView extends GetView<AdminController> {
               backgroundColor: ext.primary,
               foregroundColor: Colors.black,
             ),
-            child: const Text('Add'),
+            child: Text('admin_add'.tr),
           ),
         ],
       ),
@@ -676,7 +797,7 @@ class AdminContentView extends GetView<AdminController> {
               backgroundColor: ext.card,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
-              title: Text('Edit Video',
+              title: Text('admin_edit_video_title'.tr,
                   style: TextStyle(
                       color: ext.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -689,22 +810,22 @@ class AdminContentView extends GetView<AdminController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _DialogField(
-                          label: 'Title',
+                          label: 'admin_title_label'.tr,
                           controller: titleCtrl,
                           ext: ext),
                       const SizedBox(height: 12),
                       _DialogField(
-                          label: 'Video URL',
+                          label: 'admin_video_url_label'.tr,
                           controller: urlCtrl,
                           ext: ext),
                       const SizedBox(height: 12),
                       _DialogField(
-                          label: 'Description',
+                          label: 'admin_description_label'.tr,
                           controller: descCtrl,
                           ext: ext,
                           maxLines: 3),
                       const SizedBox(height: 16),
-                      Text('Category',
+                      Text('category'.tr,
                           style: TextStyle(
                               color: ext.textSecondary,
                               fontSize: 13,
@@ -758,7 +879,7 @@ class AdminContentView extends GetView<AdminController> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogCtx).pop(),
-                  child: Text('Cancel',
+                  child: Text('cancel'.tr,
                       style: TextStyle(color: ext.textSecondary)),
                 ),
                 ElevatedButton(
@@ -779,7 +900,7 @@ class AdminContentView extends GetView<AdminController> {
                     backgroundColor: ext.primary,
                     foregroundColor: Colors.black,
                   ),
-                  child: const Text('Save'),
+                  child: Text('save'.tr),
                 ),
               ],
             );
@@ -889,10 +1010,10 @@ class _ContentTile extends StatelessWidget {
             color: Colors.red,
             onPressed: () {
               Get.dialog(AlertDialog(
-                title: const Text('Delete'),
-                content: Text('Delete "$title"?'),
+                title: Text('admin_delete_title'.tr),
+                content: Text('admin_delete_content_confirm'.trParams({'title': title})),
                 actions: [
-                  TextButton(onPressed: Get.back, child: const Text('Cancel')),
+                  TextButton(onPressed: Get.back, child: Text('cancel'.tr)),
                   ElevatedButton(
                     onPressed: () {
                       Get.back();
@@ -900,7 +1021,7 @@ class _ContentTile extends StatelessWidget {
                     },
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: const Text('Delete'),
+                    child: Text('delete'.tr),
                   ),
                 ],
               ));

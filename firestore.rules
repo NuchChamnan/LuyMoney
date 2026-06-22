@@ -78,6 +78,15 @@ service cloud.firestore {
     match /articles/{articleId} {
       allow read: if isAuthenticated() && (hasActiveSubscription() || isAdmin());
       allow write: if isAdmin();
+
+      // ── Comments (same rationale as videos/comments above) ──────────────────
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && (hasActiveSubscription() || isAdmin()) &&
+          request.resource.data.userId == request.auth.uid;
+        allow update, delete: if isAuthenticated() &&
+          (resource.data.userId == request.auth.uid || isAdmin());
+      }
     }
 
     // ── Chats ─────────────────────────────────────────────────────────────────
@@ -95,7 +104,10 @@ service cloud.firestore {
 
     // ── Admin-only collections ─────────────────────────────────────────────────
     match /admin_notifications/{docId} {
-      allow read, write: if isAdmin();
+      // Broadcast messages: any signed-in user can read so the in-app
+      // Notifications tab can show them; only admins can create/send.
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
     match /promo_codes/{codeId} {

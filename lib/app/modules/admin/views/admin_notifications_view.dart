@@ -18,7 +18,7 @@ class AdminNotificationsView extends GetView<AdminController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Send Push Notification',
+          Text('admin_send_push_notification'.tr,
               style: TextStyle(
                   color: ext.textPrimary,
                   fontSize: 18,
@@ -26,14 +26,14 @@ class AdminNotificationsView extends GetView<AdminController> {
           const SizedBox(height: 20),
 
           // Target selector
-          Text('Target Audience',
+          Text('admin_target_audience'.tr,
               style: TextStyle(color: ext.textSecondary, fontSize: 13)),
           const SizedBox(height: 10),
           Obx(() => Row(
                 children: [
-                  {'label': 'All Users', 'value': 'all'},
-                  {'label': 'Active', 'value': 'active'},
-                  {'label': 'Expiring', 'value': 'expiring'},
+                  {'label': 'admin_target_all_users'.tr, 'value': 'all'},
+                  {'label': 'admin_target_active'.tr, 'value': 'active'},
+                  {'label': 'admin_target_expiring'.tr, 'value': 'expiring'},
                 ].map((opt) {
                   final isSelected =
                       controller.notifTarget.value == opt['value'];
@@ -74,9 +74,9 @@ class AdminNotificationsView extends GetView<AdminController> {
 
           // Title
           _Field(
-            label: 'Notification Title',
+            label: 'admin_notification_title'.tr,
             controller: titleCtrl,
-            hint: 'e.g. Special Offer!',
+            hint: 'admin_notification_title_hint'.tr,
             ext: ext,
             onChanged: (v) => controller.notifTitle.value = v,
           ),
@@ -84,9 +84,9 @@ class AdminNotificationsView extends GetView<AdminController> {
 
           // Body
           _Field(
-            label: 'Message Body',
+            label: 'admin_message_body'.tr,
             controller: bodyCtrl,
-            hint: 'Write your message here...',
+            hint: 'admin_message_body_hint'.tr,
             ext: ext,
             maxLines: 4,
             onChanged: (v) => controller.notifBody.value = v,
@@ -94,7 +94,7 @@ class AdminNotificationsView extends GetView<AdminController> {
           const SizedBox(height: 24),
 
           Obx(() => GoldButton(
-                label: 'Send Notification',
+                label: 'admin_send_notification'.tr,
                 icon: Icons.send,
                 isLoading: controller.isLoading.value,
                 onPressed: () {
@@ -107,7 +107,7 @@ class AdminNotificationsView extends GetView<AdminController> {
           const SizedBox(height: 32),
 
           // Quick templates
-          Text('Quick Templates',
+          Text('admin_quick_templates'.tr,
               style: TextStyle(
                   color: ext.textPrimary,
                   fontSize: 16,
@@ -130,25 +130,22 @@ class AdminNotificationsView extends GetView<AdminController> {
     );
   }
 
-  static const _templates = [
+  static List<Map<String, String>> get _templates => [
     {
-      'title': '⏰ Subscription Expiring Soon',
-      'body':
-          'Your Luy Money subscription expires in 7 days. Renew now to keep learning!',
+      'title': 'admin_tpl_expiring_title'.tr,
+      'body': 'admin_tpl_expiring_body'.tr,
     },
     {
-      'title': '🔒 Subscription Expired',
-      'body':
-          'Your subscription has expired. Renew today to regain access to premium content.',
+      'title': 'admin_tpl_expired_title'.tr,
+      'body': 'admin_tpl_expired_body'.tr,
     },
     {
-      'title': '🎉 New Content Available',
-      'body':
-          'Fresh financial insights just dropped! Check out the latest videos and articles.',
+      'title': 'admin_tpl_new_content_title'.tr,
+      'body': 'admin_tpl_new_content_body'.tr,
     },
     {
-      'title': '🎁 Special Offer',
-      'body': 'Limited time: Get 20% off any subscription plan. Offer ends soon!',
+      'title': 'admin_tpl_special_offer_title'.tr,
+      'body': 'admin_tpl_special_offer_body'.tr,
     },
   ];
 }

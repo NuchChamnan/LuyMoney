@@ -13,13 +13,13 @@ import 'admin_banners_view.dart';
 class AdminView extends GetView<AdminController> {
   const AdminView({super.key});
 
-  static const _navItems = [
-    {'icon': Icons.people_outline,          'label': 'Users'},
-    {'icon': Icons.library_books_outlined,  'label': 'Content'},
-    {'icon': Icons.bar_chart,               'label': 'Analytics'},
-    {'icon': Icons.notifications_outlined,  'label': 'Notify'},
-    {'icon': Icons.support_agent_outlined,  'label': 'Support'},
-    {'icon': Icons.view_carousel_outlined,  'label': 'Banners'},
+  static List<Map<String, dynamic>> get _navItems => [
+    {'icon': Icons.people_outline,          'label': 'admin_nav_users'.tr},
+    {'icon': Icons.library_books_outlined,  'label': 'admin_nav_content'.tr},
+    {'icon': Icons.bar_chart,               'label': 'admin_nav_analytics'.tr},
+    {'icon': Icons.notifications_outlined,  'label': 'admin_nav_notify'.tr},
+    {'icon': Icons.support_agent_outlined,  'label': 'admin_nav_support'.tr},
+    {'icon': Icons.view_carousel_outlined,  'label': 'admin_nav_banners'.tr},
   ];
 
   @override
@@ -37,7 +37,7 @@ class AdminView extends GetView<AdminController> {
           builder: (ctx) => IconButton(
             icon: Icon(Icons.menu, color: ext.textPrimary),
             onPressed: () => Scaffold.of(ctx).openDrawer(),
-            tooltip: 'Menu',
+            tooltip: 'admin_menu'.tr,
           ),
         ),
         title: Obx(() {
@@ -67,7 +67,7 @@ class AdminView extends GetView<AdminController> {
           IconButton(
             icon: Icon(Icons.home_outlined, color: ext.textSecondary),
             onPressed: () => Get.offAllNamed('/home'),
-            tooltip: 'Back to App',
+            tooltip: 'admin_back_to_app'.tr,
           ),
         ],
       ),
@@ -102,16 +102,16 @@ class AdminView extends GetView<AdminController> {
                           color: Colors.black, size: 28),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Admin Panel',
-                      style: TextStyle(
+                    Text(
+                      'admin_panel_title'.tr,
+                      style: const TextStyle(
                           color: Colors.black,
                           fontSize: 20,
                           fontWeight: FontWeight.w800),
                     ),
-                    const Text(
-                      'LuyMoney Management',
-                      style: TextStyle(
+                    Text(
+                      'admin_management_subtitle'.tr,
+                      style: const TextStyle(
                           color: Colors.black54,
                           fontSize: 12),
                     ),
@@ -201,7 +201,7 @@ class AdminView extends GetView<AdminController> {
               // Back to App button
               ListTile(
                 leading: Icon(Icons.exit_to_app, color: ext.textSecondary),
-                title: Text('Back to App',
+                title: Text('admin_back_to_app'.tr,
                     style: TextStyle(color: ext.textPrimary)),
                 onTap: () => Get.offAllNamed('/home'),
               ),

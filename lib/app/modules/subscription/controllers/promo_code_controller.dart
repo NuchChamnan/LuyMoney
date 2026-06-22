@@ -155,7 +155,7 @@ class PromoCodeField extends StatelessWidget {
               ),
               TextButton(
                 onPressed: controller.removePromo,
-                child: const Text('Remove', style: TextStyle(color: Colors.red)),
+                child: Text('remove'.tr, style: const TextStyle(color: Colors.red)),
               ),
             ],
           ),

@@ -25,13 +25,13 @@ class AdminAnalyticsView extends GetView<AdminController> {
             const SizedBox(height: 20),
 
             // Revenue chart
-            _buildSectionHeader('Monthly Revenue', ext),
+            _buildSectionHeader('admin_monthly_revenue'.tr, ext),
             const SizedBox(height: 12),
             _buildRevenueChart(context, ext),
             const SizedBox(height: 20),
 
             // Users distribution
-            _buildSectionHeader('User Distribution', ext),
+            _buildSectionHeader('admin_user_distribution'.tr, ext),
             const SizedBox(height: 12),
             _buildPieChart(context, ext),
           ],
@@ -43,25 +43,25 @@ class AdminAnalyticsView extends GetView<AdminController> {
   Widget _buildStatsGrid(AppColorExtension ext) {
     final stats = [
       {
-        'label': 'Total Users',
+        'label': 'admin_total_users'.tr,
         'value': '${controller.totalUsers.value}',
         'icon': Icons.people,
         'color': Colors.blue,
       },
       {
-        'label': 'Active',
+        'label': 'admin_active'.tr,
         'value': '${controller.activeUsers.value}',
         'icon': Icons.check_circle,
         'color': Colors.green,
       },
       {
-        'label': 'Monthly Revenue',
+        'label': 'admin_monthly_revenue'.tr,
         'value': '\$${controller.monthlyRevenue.value.toStringAsFixed(0)}',
         'icon': Icons.attach_money,
         'color': const Color(0xFFD4AF37),
       },
       {
-        'label': 'Total Revenue',
+        'label': 'admin_total_revenue'.tr,
         'value': '\$${controller.totalRevenue.value.toStringAsFixed(0)}',
         'icon': Icons.trending_up,
         'color': Colors.purple,
@@ -108,7 +108,7 @@ class AdminAnalyticsView extends GetView<AdminController> {
           color: ext.card,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Text('No revenue data yet',
+        child: Text('admin_no_revenue_data'.tr,
             style: TextStyle(color: ext.textSecondary)),
       );
     }
@@ -197,7 +197,7 @@ class AdminAnalyticsView extends GetView<AdminController> {
           color: ext.card,
           borderRadius: BorderRadius.circular(14),
         ),
-        child: Text('No data', style: TextStyle(color: ext.textSecondary)),
+        child: Text('admin_no_data_chart'.tr, style: TextStyle(color: ext.textSecondary)),
       );
     }
 
@@ -219,7 +219,7 @@ class AdminAnalyticsView extends GetView<AdminController> {
                     PieChartSectionData(
                       value: controller.activeUsers.value.toDouble(),
                       color: Colors.green,
-                      title: 'Active',
+                      title: 'admin_active'.tr,
                       radius: 50,
                       titleStyle: const TextStyle(
                           color: Colors.white, fontSize: 11),
@@ -227,7 +227,7 @@ class AdminAnalyticsView extends GetView<AdminController> {
                     PieChartSectionData(
                       value: controller.expiredUsers.value.toDouble(),
                       color: Colors.orange,
-                      title: 'Expired',
+                      title: 'admin_expired'.tr,
                       radius: 50,
                       titleStyle: const TextStyle(
                           color: Colors.white, fontSize: 11),
@@ -235,7 +235,7 @@ class AdminAnalyticsView extends GetView<AdminController> {
                     PieChartSectionData(
                       value: controller.freeUsers.value.toDouble(),
                       color: Colors.grey,
-                      title: 'Free',
+                      title: 'admin_free'.tr,
                       radius: 50,
                       titleStyle: const TextStyle(
                           color: Colors.white, fontSize: 11),
@@ -251,11 +251,11 @@ class AdminAnalyticsView extends GetView<AdminController> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _Legend(color: Colors.green, label: 'Active', value: '${controller.activeUsers.value}', ext: ext),
+              _Legend(color: Colors.green, label: 'admin_active'.tr, value: '${controller.activeUsers.value}', ext: ext),
               const SizedBox(height: 8),
-              _Legend(color: Colors.orange, label: 'Expired', value: '${controller.expiredUsers.value}', ext: ext),
+              _Legend(color: Colors.orange, label: 'admin_expired'.tr, value: '${controller.expiredUsers.value}', ext: ext),
               const SizedBox(height: 8),
-              _Legend(color: Colors.grey, label: 'Free', value: '${controller.freeUsers.value}', ext: ext),
+              _Legend(color: Colors.grey, label: 'admin_free'.tr, value: '${controller.freeUsers.value}', ext: ext),
             ],
           ),
         ],

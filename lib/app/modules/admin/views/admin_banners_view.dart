@@ -22,7 +22,7 @@ class AdminBannersView extends GetView<AdminController> {
             children: [
               Expanded(
                 child: Text(
-                  'Home Page Banners',
+                  'admin_home_page_banners'.tr,
                   style: TextStyle(
                       color: ext.textPrimary,
                       fontSize: 15,
@@ -32,7 +32,7 @@ class AdminBannersView extends GetView<AdminController> {
               IconButton(
                 icon: Icon(Icons.add_circle, color: ext.primary, size: 28),
                 onPressed: () => _showBannerDialog(context, ext),
-                tooltip: 'Add Banner',
+                tooltip: 'admin_add_banner'.tr,
               ),
             ],
           ),
@@ -48,7 +48,7 @@ class AdminBannersView extends GetView<AdminController> {
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    'No banners yet.\nTap + to add a promotional image for the Home page.',
+                    'admin_no_banners_yet'.tr,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: ext.textSecondary),
                   ),
@@ -93,7 +93,7 @@ class AdminBannersView extends GetView<AdminController> {
         backgroundColor: ext.card,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          isEdit ? 'Edit Banner' : 'Add Banner',
+          isEdit ? 'admin_edit_banner'.tr : 'admin_add_banner'.tr,
           style: TextStyle(color: ext.textPrimary, fontWeight: FontWeight.w700),
         ),
         content: SizedBox(
@@ -124,7 +124,7 @@ class AdminBannersView extends GetView<AdminController> {
                     ),
                   ),
                 _DialogField(
-                    label: 'Image URL *', controller: imageCtrl, ext: ext),
+                    label: 'admin_image_url_required'.tr, controller: imageCtrl, ext: ext),
                 const SizedBox(height: 8),
                 Obx(() => OutlinedButton.icon(
                       onPressed: controller.isUploadingBannerImage.value
@@ -147,8 +147,8 @@ class AdminBannersView extends GetView<AdminController> {
                               color: ext.primary, size: 18),
                       label: Text(
                         controller.isUploadingBannerImage.value
-                            ? 'Uploading...'
-                            : 'Upload from device',
+                            ? 'admin_uploading'.tr
+                            : 'admin_upload_from_device'.tr,
                         style: TextStyle(color: ext.primary),
                       ),
                       style: OutlinedButton.styleFrom(
@@ -159,15 +159,15 @@ class AdminBannersView extends GetView<AdminController> {
                     )),
                 const SizedBox(height: 12),
                 _DialogField(
-                    label: 'Title (optional)', controller: titleCtrl, ext: ext),
+                    label: 'admin_title_optional'.tr, controller: titleCtrl, ext: ext),
                 const SizedBox(height: 12),
                 _DialogField(
-                    label: 'Link (route or URL, optional)',
+                    label: 'admin_link_optional_route_or_url'.tr,
                     controller: linkCtrl,
                     ext: ext),
                 const SizedBox(height: 4),
                 Text(
-                  'Link can be an in-app route (e.g. /subscription) or an external URL (e.g. https://...)',
+                  'admin_link_hint'.tr,
                   style: TextStyle(color: ext.textSecondary, fontSize: 11),
                 ),
               ],
@@ -177,7 +177,7 @@ class AdminBannersView extends GetView<AdminController> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text('Cancel', style: TextStyle(color: ext.textSecondary)),
+            child: Text('cancel'.tr, style: TextStyle(color: ext.textSecondary)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -197,7 +197,7 @@ class AdminBannersView extends GetView<AdminController> {
               backgroundColor: ext.primary,
               foregroundColor: Colors.black,
             ),
-            child: const Text('Save'),
+            child: Text('save'.tr),
           ),
         ],
         ),
@@ -263,7 +263,7 @@ class _BannerTile extends GetView<AdminController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  banner.title.isEmpty ? '(No title)' : banner.title,
+                  banner.title.isEmpty ? 'admin_no_title'.tr : banner.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -286,7 +286,7 @@ class _BannerTile extends GetView<AdminController> {
                       onPressed: isFirst
                           ? null
                           : () => controller.reorderBanner(banner, -1),
-                      tooltip: 'Move up',
+                      tooltip: 'admin_move_up'.tr,
                     ),
                     IconButton(
                       icon: const Icon(Icons.arrow_downward, size: 16),
@@ -295,7 +295,7 @@ class _BannerTile extends GetView<AdminController> {
                       onPressed: isLast
                           ? null
                           : () => controller.reorderBanner(banner, 1),
-                      tooltip: 'Move down',
+                      tooltip: 'admin_move_down'.tr,
                     ),
                     const Spacer(),
                     Switch(
@@ -320,17 +320,17 @@ class _BannerTile extends GetView<AdminController> {
                 color: Colors.red,
                 onPressed: () {
                   Get.dialog(AlertDialog(
-                    title: const Text('Delete Banner'),
-                    content: const Text('Delete this banner?'),
+                    title: Text('admin_delete_banner_title'.tr),
+                    content: Text('admin_delete_banner_confirm'.tr),
                     actions: [
-                      TextButton(onPressed: Get.back, child: const Text('Cancel')),
+                      TextButton(onPressed: Get.back, child: Text('cancel'.tr)),
                       ElevatedButton(
                         onPressed: () {
                           Get.back();
                           controller.deleteBanner(banner.id);
                         },
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                        child: const Text('Delete'),
+                        child: Text('delete'.tr),
                       ),
                     ],
                   ));

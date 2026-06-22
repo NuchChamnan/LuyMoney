@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,7 +26,7 @@ class AdminUsersView extends GetView<AdminController> {
                 onChanged: (v) => controller.userSearch.value = v,
                 style: TextStyle(color: ext.textPrimary),
                 decoration: InputDecoration(
-                  hintText: 'Search users...',
+                  hintText: 'admin_search_users'.tr,
                   hintStyle: TextStyle(color: ext.textSecondary),
                   prefixIcon: Icon(Icons.search, color: ext.textSecondary),
                   filled: true,
@@ -46,7 +46,7 @@ class AdminUsersView extends GetView<AdminController> {
                           .map((f) => Padding(
                                 padding: const EdgeInsets.only(right: 8),
                                 child: FilterChip(
-                                  label: Text(f.isEmpty ? f : '${f[0].toUpperCase()}${f.substring(1)}'),
+                                  label: Text(_filterLabel(f)),
                                   selected: controller.userStatusFilter.value == f,
                                   onSelected: (_) {
                                     controller.userStatusFilter.value = f;
@@ -71,7 +71,7 @@ class AdminUsersView extends GetView<AdminController> {
             }
             if (controller.users.isEmpty) {
               return Center(
-                  child: Text('No users found',
+                  child: Text('admin_no_users_found'.tr,
                       style: TextStyle(color: ext.textSecondary)));
             }
             return RefreshIndicator(
@@ -87,6 +87,21 @@ class AdminUsersView extends GetView<AdminController> {
         ),
       ],
     );
+  }
+
+  String _filterLabel(String f) {
+    switch (f) {
+      case 'all':
+        return 'all'.tr;
+      case 'active':
+        return 'admin_active'.tr;
+      case 'expired':
+        return 'admin_expired'.tr;
+      case 'free':
+        return 'admin_free'.tr;
+      default:
+        return f;
+    }
   }
 }
 
@@ -146,7 +161,7 @@ class _UserRow extends GetView<AdminController> {
                 ),
               ),
               _StatusBadge(
-                label: hasActive ? 'Active' : sub != null ? 'Expired' : 'Free',
+                label: hasActive ? 'admin_active'.tr : sub != null ? 'admin_expired'.tr : 'admin_free'.tr,
                 color: hasActive
                     ? Colors.green
                     : sub != null
@@ -163,13 +178,13 @@ class _UserRow extends GetView<AdminController> {
                 Icon(Icons.calendar_today, size: 12, color: ext.textSecondary),
                 const SizedBox(width: 4),
                 Text(
-                  'Expires: ${DateHelper.formatDate(sub.expiryDate)}',
+                  '${'admin_expires_label'.tr}: ${DateHelper.formatDate(sub.expiryDate)}',
                   style: TextStyle(color: ext.textSecondary, fontSize: 12),
                 ),
                 const SizedBox(width: 12),
                 if (!sub.isExpired)
                   Text(
-                    '${sub.daysRemaining} days left',
+                    '${sub.daysRemaining} ${'admin_days_left_short'.tr}',
                     style: TextStyle(
                       color: sub.isExpiringSoon
                           ? Colors.orange
@@ -190,13 +205,13 @@ class _UserRow extends GetView<AdminController> {
             runSpacing: 8,
             children: [
               _ActionButton(
-                label: 'Extend',
+                label: 'admin_extend'.tr,
                 icon: Icons.add_circle_outline,
                 color: ext.primary,
                 onTap: () => _showExtendDialog(context),
               ),
               _ActionButton(
-                label: 'Deactivate',
+                label: 'admin_deactivate'.tr,
                 icon: Icons.block,
                 color: Colors.orange,
                 onTap: () => controller.deactivateUser(user),
@@ -204,20 +219,20 @@ class _UserRow extends GetView<AdminController> {
               // Promote / Demote Admin
               if (!user.isAdmin)
                 _ActionButton(
-                  label: 'Make Admin',
+                  label: 'admin_make_admin'.tr,
                   icon: Icons.admin_panel_settings_outlined,
                   color: const Color(0xFF6C63FF),
                   onTap: () => _showPromoteDialog(context),
                 )
               else
                 _ActionButton(
-                  label: 'Remove Admin',
+                  label: 'admin_remove_admin'.tr,
                   icon: Icons.person_outlined,
                   color: Colors.deepOrange,
                   onTap: () => _showDemoteDialog(context),
                 ),
               _ActionButton(
-                label: 'Delete',
+                label: 'delete'.tr,
                 icon: Icons.delete_outline,
                 color: Colors.red,
                 onTap: () => _showDeleteDialog(context),
@@ -301,12 +316,12 @@ class _UserRow extends GetView<AdminController> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _StatusBadge(
-                          label: user.isAdmin ? '👑 Admin' : '👤 User',
+                          label: user.isAdmin ? 'admin_role_admin'.tr : 'admin_role_user'.tr,
                           color: user.isAdmin ? const Color(0xFF6C63FF) : Colors.blueGrey,
                         ),
                         const SizedBox(width: 8),
                         _StatusBadge(
-                          label: hasActive ? 'Active' : sub != null ? 'Expired' : 'Free',
+                          label: hasActive ? 'admin_active'.tr : sub != null ? 'admin_expired'.tr : 'admin_free'.tr,
                           color: hasActive ? Colors.green : sub != null ? Colors.orange : Colors.grey,
                         ),
                       ],
@@ -317,11 +332,11 @@ class _UserRow extends GetView<AdminController> {
               const SizedBox(height: 24),
 
               // Info rows
-              _InfoRow(icon: Icons.email_outlined, label: 'Email', value: user.email, ext: ext),
+              _InfoRow(icon: Icons.email_outlined, label: 'admin_email_label'.tr, value: user.email, ext: ext),
               const SizedBox(height: 12),
               _InfoRow(
                 icon: Icons.phone_outlined,
-                label: 'Phone',
+                label: 'admin_phone_label'.tr,
                 value: (user.phone != null && user.phone!.isNotEmpty) ? user.phone! : '—',
                 ext: ext,
               ),
@@ -350,7 +365,7 @@ class _UserRow extends GetView<AdminController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Password', style: TextStyle(color: ext.textSecondary, fontSize: 11)),
+                          Text('admin_password_label'.tr, style: TextStyle(color: ext.textSecondary, fontSize: 11)),
                           const SizedBox(height: 2),
                           Text('••••••••', style: TextStyle(color: ext.textPrimary, fontSize: 16, letterSpacing: 3)),
                         ],
@@ -368,9 +383,9 @@ class _UserRow extends GetView<AdminController> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
                         ),
-                        child: const Text(
-                          'Reset',
-                          style: TextStyle(color: Colors.purple, fontSize: 12, fontWeight: FontWeight.w600),
+                        child: Text(
+                          'admin_reset'.tr,
+                          style: const TextStyle(color: Colors.purple, fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -382,8 +397,8 @@ class _UserRow extends GetView<AdminController> {
                 const SizedBox(height: 12),
                 _InfoRow(
                   icon: Icons.calendar_today_outlined,
-                  label: 'Subscription expires',
-                  value: '${DateHelper.formatDate(sub.expiryDate)}  •  ${sub.daysRemaining} days left',
+                  label: 'admin_subscription_expires'.tr,
+                  value: '${DateHelper.formatDate(sub.expiryDate)}  •  ${sub.daysRemaining} ${'admin_days_left_short'.tr}',
                   ext: ext,
                 ),
               ],
@@ -398,33 +413,33 @@ class _UserRow extends GetView<AdminController> {
                 runSpacing: 8,
                 children: [
                   _ActionButton(
-                    label: 'Extend',
+                    label: 'admin_extend'.tr,
                     icon: Icons.add_circle_outline,
                     color: ext.primary,
                     onTap: () { Get.back(); _showExtendDialog(context); },
                   ),
                   _ActionButton(
-                    label: 'Deactivate',
+                    label: 'admin_deactivate'.tr,
                     icon: Icons.block,
                     color: Colors.orange,
                     onTap: () { Get.back(); controller.deactivateUser(user); },
                   ),
                   if (!user.isAdmin)
                     _ActionButton(
-                      label: 'Make Admin',
+                      label: 'admin_make_admin'.tr,
                       icon: Icons.admin_panel_settings_outlined,
                       color: const Color(0xFF6C63FF),
                       onTap: () { Get.back(); _showPromoteDialog(context); },
                     )
                   else
                     _ActionButton(
-                      label: 'Remove Admin',
+                      label: 'admin_remove_admin'.tr,
                       icon: Icons.person_outlined,
                       color: Colors.deepOrange,
                       onTap: () { Get.back(); _showDemoteDialog(context); },
                     ),
                   _ActionButton(
-                    label: 'Delete',
+                    label: 'delete'.tr,
                     icon: Icons.delete_outline,
                     color: Colors.red,
                     onTap: () { Get.back(); _showDeleteDialog(context); },
@@ -443,11 +458,11 @@ class _UserRow extends GetView<AdminController> {
     final days = 30.obs;
     Get.dialog(
       AlertDialog(
-        title: const Text('Extend Subscription'),
+        title: Text('admin_extend_subscription_title'.tr),
         content: Obx(() => Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Extend for ${days.value} days'),
+                Text('admin_extend_for_days'.trParams({'count': '${days.value}'})),
                 Slider(
                   value: days.value.toDouble(),
                   min: 7,
@@ -458,13 +473,13 @@ class _UserRow extends GetView<AdminController> {
               ],
             )),
         actions: [
-          TextButton(onPressed: Get.back, child: const Text('Cancel')),
+          TextButton(onPressed: Get.back, child: Text('cancel'.tr)),
           ElevatedButton(
             onPressed: () {
               Get.back();
               controller.extendUserSubscription(user, days.value);
             },
-            child: const Text('Extend'),
+            child: Text('admin_extend'.tr),
           ),
         ],
       ),
@@ -473,15 +488,15 @@ class _UserRow extends GetView<AdminController> {
 
   void _showPromoteDialog(BuildContext context) {
     Get.dialog(AlertDialog(
-      title: const Row(children: [
-        Icon(Icons.admin_panel_settings, color: Color(0xFF6C63FF)),
-        SizedBox(width: 8),
-        Text('Make Admin'),
+      title: Row(children: [
+        const Icon(Icons.admin_panel_settings, color: Color(0xFF6C63FF)),
+        const SizedBox(width: 8),
+        Text('admin_make_admin_title'.tr),
       ]),
       content: Text(
-          'Promote "${user.name}" to Admin?\nThey will have full access to the admin panel.'),
+          'admin_promote_confirm'.trParams({'name': user.name})),
       actions: [
-        TextButton(onPressed: Get.back, child: const Text('Cancel')),
+        TextButton(onPressed: Get.back, child: Text('cancel'.tr)),
         ElevatedButton(
           onPressed: () {
             Get.back();
@@ -490,7 +505,7 @@ class _UserRow extends GetView<AdminController> {
           style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6C63FF),
               foregroundColor: Colors.white),
-          child: const Text('Make Admin 👑'),
+          child: Text('admin_make_admin_button'.tr),
         ),
       ],
     ));
@@ -498,15 +513,15 @@ class _UserRow extends GetView<AdminController> {
 
   void _showDemoteDialog(BuildContext context) {
     Get.dialog(AlertDialog(
-      title: const Row(children: [
-        Icon(Icons.person, color: Colors.deepOrange),
-        SizedBox(width: 8),
-        Text('Remove Admin'),
+      title: Row(children: [
+        const Icon(Icons.person, color: Colors.deepOrange),
+        const SizedBox(width: 8),
+        Text('admin_remove_admin_title'.tr),
       ]),
       content: Text(
-          'Remove admin role from "${user.name}"?\nThey will become a regular user.'),
+          'admin_demote_confirm'.trParams({'name': user.name})),
       actions: [
-        TextButton(onPressed: Get.back, child: const Text('Cancel')),
+        TextButton(onPressed: Get.back, child: Text('cancel'.tr)),
         ElevatedButton(
           onPressed: () {
             Get.back();
@@ -515,7 +530,7 @@ class _UserRow extends GetView<AdminController> {
           style: ElevatedButton.styleFrom(
               backgroundColor: Colors.deepOrange,
               foregroundColor: Colors.white),
-          child: const Text('Remove Admin'),
+          child: Text('admin_remove_admin_title'.tr),
         ),
       ],
     ));
@@ -523,17 +538,17 @@ class _UserRow extends GetView<AdminController> {
 
   void _showDeleteDialog(BuildContext context) {
     Get.dialog(AlertDialog(
-      title: const Text('Delete User'),
-      content: Text('Delete ${user.name}? This cannot be undone.'),
+      title: Text('admin_delete_user_title'.tr),
+      content: Text('admin_delete_user_confirm'.trParams({'name': user.name})),
       actions: [
-        TextButton(onPressed: Get.back, child: const Text('Cancel')),
+        TextButton(onPressed: Get.back, child: Text('cancel'.tr)),
         ElevatedButton(
           onPressed: () {
             Get.back();
             controller.deleteUser(user);
           },
           style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          child: const Text('Delete'),
+          child: Text('delete'.tr),
         ),
       ],
     ));

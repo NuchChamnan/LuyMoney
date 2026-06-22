@@ -136,6 +136,8 @@ class ArticleModel {
   final int readTimeMinutes;
   final bool isPremium;
   final bool isBookmarked;
+  final bool isLiked;
+  final bool isPinned;
   final double scrollProgress;
 
   const ArticleModel({
@@ -152,6 +154,8 @@ class ArticleModel {
     required this.readTimeMinutes,
     this.isPremium = true,
     this.isBookmarked = false,
+    this.isLiked = false,
+    this.isPinned = false,
     this.scrollProgress = 0.0,
   });
 
@@ -191,7 +195,12 @@ class ArticleModel {
         'isPremium': isPremium,
       };
 
-  ArticleModel copyWith({bool? isBookmarked, double? scrollProgress}) {
+  ArticleModel copyWith({
+    bool? isBookmarked,
+    bool? isLiked,
+    bool? isPinned,
+    double? scrollProgress,
+  }) {
     return ArticleModel(
       id: id,
       title: title,
@@ -206,6 +215,8 @@ class ArticleModel {
       readTimeMinutes: readTimeMinutes,
       isPremium: isPremium,
       isBookmarked: isBookmarked ?? this.isBookmarked,
+      isLiked: isLiked ?? this.isLiked,
+      isPinned: isPinned ?? this.isPinned,
       scrollProgress: scrollProgress ?? this.scrollProgress,
     );
   }

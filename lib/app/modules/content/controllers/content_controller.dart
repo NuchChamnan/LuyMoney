@@ -31,11 +31,11 @@ class ContentController extends GetxController {
   final hasMoreVideos   = false.obs;
   final hasMoreArticles = false.obs;
 
-  // Comments (for the currently-viewed video)
+  // Comments (for the currently-viewed video or article)
   final comments = <CommentModel>[].obs;
   final commentController = TextEditingController();
   final isSendingComment = false.obs;
-  String? _commentsVideoId;
+  String? _commentsKey;
   StreamSubscription<QuerySnapshot>? _commentsSub;
 
   @override
@@ -121,7 +121,11 @@ class ContentController extends GetxController {
 
       _allArticles.value = snap.docs.map((d) {
         final a = ArticleModel.fromFirestore(d);
-        return a.copyWith(isBookmarked: _storage.isArticleBookmarked(a.id));
+        return a.copyWith(
+          isBookmarked: _storage.isArticleBookmarked(a.id),
+          isLiked: _storage.isArticleLiked(a.id),
+          isPinned: _storage.isArticlePinned(a.id),
+        );
       }).toList();
 
       _applyArticleFilter();
@@ -176,6 +180,11 @@ class ContentController extends GetxController {
               a.excerpt.toLowerCase().contains(q))
           .toList();
     }
+    // Pinned articles surface at the top, newest-first within each group.
+    list.sort((a, b) {
+      if (a.isPinned != b.isPinned) return a.isPinned ? -1 : 1;
+      return b.publishedAt.compareTo(a.publishedAt);
+    });
     articles.value = list;
   }
 
@@ -220,6 +229,27 @@ class ContentController extends GetxController {
     }
   }
 
+  Future<void> toggleArticleLike(String id) async {
+    await _storage.toggleArticleLike(id);
+    final i = _allArticles.indexWhere((a) => a.id == id);
+    if (i != -1) {
+      _allArticles[i] =
+          _allArticles[i].copyWith(isLiked: _storage.isArticleLiked(id));
+      _applyArticleFilter();
+    }
+  }
+
+  // ── Pin (kept locally — surfaces the post at the top of the list) ──────────
+  Future<void> toggleArticlePinned(String id) async {
+    await _storage.toggleArticlePinned(id);
+    final i = _allArticles.indexWhere((a) => a.id == id);
+    if (i != -1) {
+      _allArticles[i] =
+          _allArticles[i].copyWith(isPinned: _storage.isArticlePinned(id));
+      _applyArticleFilter();
+    }
+  }
+
   List<VideoModel>   get bookmarkedVideos   =>
       _allVideos.where((v) => v.isBookmarked).toList();
   List<ArticleModel> get bookmarkedArticles =>
@@ -243,15 +273,17 @@ class ContentController extends GetxController {
     }
   }
 
-  // ── Comments ───────────────────────────────────────────────────────────────
-  void listenToComments(String videoId) {
-    if (_commentsVideoId == videoId) return;
-    _commentsVideoId = videoId;
+  // ── Comments (shared between videos and articles) ───────────────────────────
+  // [parentCollection] is 'videos' or 'articles'.
+  void listenToComments(String parentCollection, String docId) {
+    final key = '$parentCollection/$docId';
+    if (_commentsKey == key) return;
+    _commentsKey = key;
     _commentsSub?.cancel();
     comments.clear();
     _commentsSub = _firestore
-        .collection('videos')
-        .doc(videoId)
+        .collection(parentCollection)
+        .doc(docId)
         .collection('comments')
         .orderBy('createdAt', descending: true)
         .limit(100)
@@ -262,7 +294,7 @@ class ContentController extends GetxController {
     });
   }
 
-  Future<void> addComment(String videoId) async {
+  Future<void> addComment(String parentCollection, String docId) async {
     final text = commentController.text.trim();
     final userId = _authService.firebaseUser?.uid;
     if (text.isEmpty || userId == null || isSendingComment.value) return;
@@ -280,8 +312,8 @@ class ContentController extends GetxController {
         createdAt: DateTime.now(),
       );
       await _firestore
-          .collection('videos')
-          .doc(videoId)
+          .collection(parentCollection)
+          .doc(docId)
           .collection('comments')
           .add(comment.toMap());
     } catch (e) {
@@ -292,10 +324,11 @@ class ContentController extends GetxController {
     }
   }
 
-  Future<void> deleteComment(String videoId, String commentId) async {
+  Future<void> deleteComment(
+      String parentCollection, String docId, String commentId) async {
     await _firestore
-        .collection('videos')
-        .doc(videoId)
+        .collection(parentCollection)
+        .doc(docId)
         .collection('comments')
         .doc(commentId)
         .delete();

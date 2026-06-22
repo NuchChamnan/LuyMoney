@@ -75,7 +75,7 @@ class _ChatListPanel extends GetView<AdminController> {
             children: [
               Icon(Icons.support_agent, color: ext.primary),
               const SizedBox(width: 8),
-              Text('Customer Chats',
+              Text('admin_customer_chats'.tr,
                   style: TextStyle(
                       color: ext.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -103,7 +103,7 @@ class _ChatListPanel extends GetView<AdminController> {
                   children: [
                     Icon(Icons.chat_bubble_outline, size: 48, color: ext.textSecondary),
                     const SizedBox(height: 12),
-                    Text('No customer messages yet',
+                    Text('admin_no_customer_messages'.tr,
                         style: TextStyle(color: ext.textSecondary)),
                   ],
                 ),
@@ -266,7 +266,7 @@ class _ConversationPanel extends GetView<AdminController> {
             final msgs = controller.selectedChatMessages;
             if (msgs.isEmpty) {
               return Center(
-                  child: Text('No messages',
+                  child: Text('admin_no_messages'.tr,
                       style: TextStyle(color: ext.textSecondary)));
             }
             return ListView.builder(
@@ -304,14 +304,14 @@ class _ConversationPanel extends GetView<AdminController> {
                               child: CircularProgressIndicator(
                                   strokeWidth: 2, color: ext.primary))
                           : Icon(Icons.image_outlined, color: ext.primary),
-                      tooltip: 'Send image',
+                      tooltip: 'admin_send_image'.tr,
                     )),
                 Expanded(
                   child: TextField(
                     controller: controller.adminReplyController,
                     style: TextStyle(color: ext.textPrimary),
                     decoration: InputDecoration(
-                      hintText: 'Type a reply...',
+                      hintText: 'admin_type_reply'.tr,
                       hintStyle: TextStyle(color: ext.textSecondary),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(24),
@@ -375,7 +375,7 @@ class _EmptyConversation extends StatelessWidget {
         children: [
           Icon(Icons.forum_outlined, size: 64, color: ext.textSecondary),
           const SizedBox(height: 16),
-          Text('Select a conversation',
+          Text('admin_select_conversation'.tr,
               style: TextStyle(color: ext.textSecondary, fontSize: 16)),
         ],
       ),

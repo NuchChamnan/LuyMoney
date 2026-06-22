@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-import '../../../data/models/comment_model.dart';
 import '../../../data/models/content_model.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/constants/app_colors.dart';
 import '../../../shared/themes/app_themes.dart';
 import '../../../shared/widgets/video_card.dart';
+import '../../../shared/widgets/comment_widgets.dart';
 import '../controllers/content_controller.dart';
 
 class VideoDetailView extends GetView<ContentController> {
@@ -57,7 +57,7 @@ class _YoutubeVideoDetailState extends State<_YoutubeVideoDetail> {
     );
     _ytController.addListener(_onYtControllerChanged);
     final ctrl = Get.find<ContentController>();
-    ctrl.listenToComments(_currentVideo.id);
+    ctrl.listenToComments('videos', _currentVideo.id);
     ctrl.incrementViewCount(_currentVideo.id);
   }
 
@@ -90,7 +90,7 @@ class _YoutubeVideoDetailState extends State<_YoutubeVideoDetail> {
     _ytTitle.value = video.title;
     _ytController.load(video.youtubeVideoId);
     final ctrl = Get.find<ContentController>();
-    ctrl.listenToComments(video.id);
+    ctrl.listenToComments('videos', video.id);
     ctrl.incrementViewCount(video.id);
     if (_scrollController.hasClients) {
       _scrollController.jumpTo(0);
@@ -267,7 +267,12 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                 ),
 
                 SliverToBoxAdapter(
-                  child: _CommentInput(video: widget.video, ext: ext, ctrl: ctrl),
+                  child: CommentInputBar(
+                    ext: ext,
+                    controller: ctrl.commentController,
+                    isSending: ctrl.isSendingComment,
+                    onSend: () => ctrl.addComment('videos', widget.video.id),
+                  ),
                 ),
 
                 Obx(() {
@@ -290,12 +295,12 @@ class _VideoDetailScaffoldState extends State<_VideoDetailScaffold> {
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (ctx, i) => _CommentTile(
+                        (ctx, i) => CommentTile(
                           comment: ctrl.comments[i],
                           ext: ext,
                           canDelete: ctrl.canDeleteComment(ctrl.comments[i]),
                           onDelete: () => ctrl.deleteComment(
-                              widget.video.id, ctrl.comments[i].id),
+                              'videos', widget.video.id, ctrl.comments[i].id),
                         ),
                         childCount: ctrl.comments.length,
                       ),
@@ -916,207 +921,6 @@ class _MoreSheet extends StatelessWidget {
   }
 }
 
-// ── Comment Input ─────────────────────────────────────────────────────────────
-class _CommentInput extends StatelessWidget {
-  final VideoModel video;
-  final AppColorExtension ext;
-  final ContentController ctrl;
-
-  const _CommentInput({
-    required this.video,
-    required this.ext,
-    required this.ctrl,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final user = Get.find<AuthService>().currentUser.value;
-    final hasAvatar = user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: AppColors.gold.withValues(alpha: 0.2),
-            backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl!) : null,
-            child: hasAvatar
-                ? null
-                : Text(
-                    (user?.name.isNotEmpty == true
-                            ? user!.name[0]
-                            : '?')
-                        .toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: TextField(
-              controller: ctrl.commentController,
-              minLines: 1,
-              maxLines: 4,
-              style: TextStyle(color: ext.textPrimary, fontSize: 14),
-              decoration: InputDecoration(
-                hintText: 'add_comment_hint'.tr,
-                hintStyle: TextStyle(color: ext.textSecondary, fontSize: 14),
-                filled: true,
-                fillColor: ext.surface,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: ext.border),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide(color: ext.border),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: const BorderSide(color: AppColors.gold),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Obx(() => ctrl.isSendingComment.value
-              ? const SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: AppColors.gold),
-                  ),
-                )
-              : GestureDetector(
-                  onTap: () => ctrl.addComment(video.id),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.goldGradient,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.send_rounded,
-                        color: Colors.black, size: 18),
-                  ),
-                )),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Comment Tile ──────────────────────────────────────────────────────────────
-class _CommentTile extends StatelessWidget {
-  final CommentModel comment;
-  final AppColorExtension ext;
-  final bool canDelete;
-  final VoidCallback onDelete;
-
-  const _CommentTile({
-    required this.comment,
-    required this.ext,
-    required this.canDelete,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final hasAvatar =
-        comment.userAvatarUrl != null && comment.userAvatarUrl!.isNotEmpty;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: AppColors.gold.withValues(alpha: 0.2),
-            backgroundImage:
-                hasAvatar ? NetworkImage(comment.userAvatarUrl!) : null,
-            child: hasAvatar
-                ? null
-                : Text(
-                    comment.userName.isNotEmpty
-                        ? comment.userName[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      color: AppColors.gold,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  Expanded(
-                    child: Text(
-                      comment.userName,
-                      style: TextStyle(
-                        color: ext.textPrimary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  Text(
-                    _formatRelativeTime(comment.createdAt),
-                    style: TextStyle(color: ext.textSecondary, fontSize: 11),
-                  ),
-                  if (canDelete) ...[
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: onDelete,
-                      child: Icon(Icons.delete_outline_rounded,
-                          size: 16, color: ext.textSecondary),
-                    ),
-                  ],
-                ]),
-                const SizedBox(height: 4),
-                Text(
-                  comment.text,
-                  style: TextStyle(
-                      color: ext.textSecondary, fontSize: 13, height: 1.4),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-String _formatRelativeTime(DateTime dt) {
-  final diff = DateTime.now().difference(dt);
-  if (diff.inSeconds < 60) return 'just_now'.tr;
-  if (diff.inMinutes < 60) {
-    return 'minutes_ago'.trParams({'count': '${diff.inMinutes}'});
-  }
-  if (diff.inHours < 24) {
-    return 'hours_ago'.trParams({'count': '${diff.inHours}'});
-  }
-  if (diff.inDays < 7) {
-    return 'days_ago'.trParams({'count': '${diff.inDays}'});
-  }
-  return '${dt.month}/${dt.day}/${dt.year}';
-}
 
 class _SheetTile extends StatelessWidget {
   final IconData icon;

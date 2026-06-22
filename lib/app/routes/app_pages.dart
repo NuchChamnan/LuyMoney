@@ -23,6 +23,9 @@ import '../modules/content/views/article_detail_view.dart';
 import '../modules/support/bindings/support_binding.dart';
 import '../modules/support/views/support_view.dart';
 
+import '../modules/notifications/bindings/notifications_binding.dart';
+import '../modules/notifications/views/notifications_view.dart';
+
 import '../modules/settings/bindings/settings_binding.dart';
 import '../modules/settings/views/settings_view.dart';
 import '../modules/settings/views/profile_view.dart';
@@ -70,6 +73,9 @@ class AppPages {
 
     GetPage(name: Routes.SUPPORT, page: () => const SupportView(),
         binding: SupportBinding(), middlewares: [AuthMiddleware()]),
+
+    GetPage(name: Routes.NOTIFICATIONS, page: () => const NotificationsView(),
+        binding: NotificationsBinding(), middlewares: [AuthMiddleware()]),
 
     GetPage(name: Routes.SETTINGS, page: () => const SettingsView(),
         binding: SettingsBinding(), middlewares: [AuthMiddleware()]),
