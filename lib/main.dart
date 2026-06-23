@@ -9,3 +9,11 @@ Future<void> main() async {
   AppConfig.setEnvironment(AppEnvironment.dev);
   await bootstrap();
 }
+
+// test
+void mainProd(String envFile) async {
+  await dotenv.load(fileName: envFile);
+  AppConfig.setEnvironment(AppEnvironment.prod);
+  await bootstrap();
+  
+}
