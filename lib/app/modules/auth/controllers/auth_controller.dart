@@ -2,14 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:local_auth/local_auth.dart';
 
 import '../../../services/auth_service.dart';
 import '../../../routes/app_routes.dart';
 
 class AuthController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
-  final LocalAuthentication _localAuth = LocalAuthentication();
   final _storage = GetStorage();
 
   // Form controllers
@@ -130,28 +128,6 @@ class AuthController extends GetxController {
   Future<void> signOut() async {
     await _authService.signOut();
     Get.offAllNamed(Routes.LOGIN);
-  }
-
-  Future<void> authenticateWithBiometric() async {
-    try {
-      final canAuth = await _localAuth.canCheckBiometrics;
-      if (!canAuth) return;
-      final didAuth = await _localAuth.authenticate(
-        localizedReason: 'Authenticate to access Luy Money',
-        biometricOnly: true,
-      );
-      if (didAuth) {
-        final savedEmail = _storage.read<String>('remember_email');
-        final savedPassword = _storage.read<String>('saved_password');
-        if (savedEmail != null && savedPassword != null) {
-          emailController.text = savedEmail;
-          passwordController.text = savedPassword;
-          await login();
-        }
-      }
-    } catch (e) {
-      Get.log('Biometric auth error: $e');
-    }
   }
 
   String _getAuthErrorMessage(String code) {

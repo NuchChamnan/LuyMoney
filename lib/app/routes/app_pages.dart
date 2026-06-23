@@ -29,6 +29,8 @@ import '../modules/notifications/views/notifications_view.dart';
 import '../modules/settings/bindings/settings_binding.dart';
 import '../modules/settings/views/settings_view.dart';
 import '../modules/settings/views/profile_view.dart';
+import '../modules/settings/views/faq_view.dart';
+import '../modules/settings/views/terms_view.dart';
 
 import '../modules/admin/bindings/admin_binding.dart';
 import '../modules/admin/views/admin_view.dart';
@@ -81,6 +83,10 @@ class AppPages {
         binding: SettingsBinding(), middlewares: [AuthMiddleware()]),
     GetPage(name: Routes.PROFILE, page: () => const ProfileView(),
         binding: SettingsBinding(), middlewares: [AuthMiddleware()]),
+    GetPage(name: Routes.FAQ, page: () => const FaqView(),
+        middlewares: [AuthMiddleware()]),
+    GetPage(name: Routes.TERMS, page: () => const TermsView(),
+        middlewares: [AuthMiddleware()]),
 
     GetPage(name: Routes.ADMIN, page: () => const AdminView(),
         binding: AdminBinding(), middlewares: [AuthMiddleware(), AdminMiddleware()]),

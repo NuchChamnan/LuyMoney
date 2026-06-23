@@ -6,6 +6,7 @@ import '../../../shared/constants/app_colors.dart';
 import '../../../shared/themes/app_themes.dart';
 import '../../../shared/widgets/comment_widgets.dart';
 import '../controllers/notifications_controller.dart';
+import 'notification_detail_view.dart';
 
 class NotificationsView extends GetView<NotificationsController> {
   const NotificationsView({super.key});
@@ -52,7 +53,10 @@ class NotificationsView extends GetView<NotificationsController> {
               return _NotificationTile(
                 notification: n,
                 ext: ext,
-                onTap: () => controller.markAsRead(n.id),
+                onTap: () {
+                  controller.markAsRead(n.id);
+                  Get.to(() => const NotificationDetailView(), arguments: n);
+                },
               );
             },
           );
@@ -141,6 +145,8 @@ class _NotificationTile extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     notification.body,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: ext.textSecondary, fontSize: 13, height: 1.4),
                   ),
                   const SizedBox(height: 6),

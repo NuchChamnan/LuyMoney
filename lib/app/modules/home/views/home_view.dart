@@ -14,6 +14,7 @@ import '../../../shared/constants/app_colors.dart';
 import '../../../shared/themes/app_themes.dart';
 import '../../../shared/widgets/video_card.dart';
 import '../../../shared/widgets/article_card.dart';
+import '../../content/controllers/content_controller.dart';
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -116,10 +117,17 @@ class HomeView extends GetView<HomeController> {
             ),
             SliverToBoxAdapter(
               child: Obx(() {
-                if (controller.isLoading.value) {
+                // Sourced from ContentController (not HomeController's own
+                // recent-articles fetch) so Like/Save/Pin toggled here stay
+                // in sync with the Articles list and Detail page, which all
+                // read from this same shared, reactive list.
+                final contentCtrl = Get.find<ContentController>();
+                if (contentCtrl.isLoadingArticles.value &&
+                    contentCtrl.articles.isEmpty) {
                   return _ShimmerList();
                 }
-                if (controller.recentArticles.isEmpty) {
+                final latestArticles = contentCtrl.articles.take(5).toList();
+                if (latestArticles.isEmpty) {
                   return _EmptySection(
                     icon: Icons.article_outlined,
                     message: 'no_articles_yet'.tr,
@@ -128,7 +136,7 @@ class HomeView extends GetView<HomeController> {
                   );
                 }
                 return Column(
-                  children: controller.recentArticles
+                  children: latestArticles
                       .map((a) => Padding(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                             child: ArticleCard(

@@ -101,7 +101,6 @@ const Map<String, String> enUS = {
   'promotional_messages': 'Promotional Messages',
   'saved_videos': 'Saved Videos',
   'manage_subscription': 'Manage Subscription',
-  'restore_purchase': 'Restore Purchase',
   'faq': 'FAQ',
   'rate_app': 'Rate the App',
   'privacy_policy': 'Privacy Policy',
@@ -166,8 +165,6 @@ const Map<String, String> enUS = {
 
   // Auth extras
   'financial_freedom': 'Financial Freedom',
-  'or': 'or',
-  'biometric_login': 'Biometric Login',
   'create_account': 'Create Account',
   'join_thousands_tagline': 'Join thousands learning financial freedom',
   'your_full_name': 'Your full name',
@@ -400,4 +397,46 @@ const Map<String, String> enUS = {
 
   // Notifications inbox
   'no_notifications_yet': 'No notifications yet',
+
+  // FAQ
+  'faq_q1': 'How do I subscribe to Luy Money?',
+  'faq_a1': 'Go to Settings > Manage Subscription, or tap any locked Premium video or article. Choose a plan and complete payment to unlock all content immediately.',
+  'faq_q2': 'What payment methods do you accept?',
+  'faq_a2': 'We accept ABA Pay, Wing Money, PayPal, and major credit cards. You can choose your preferred method on the payment screen.',
+  'faq_q3': 'How do I manage or cancel my subscription?',
+  'faq_a3': 'Open Settings > Manage Subscription to view your plan, renewal date, and remaining days. Subscriptions do not auto-renew — you choose when to renew.',
+  'faq_q4': 'I forgot my password. What should I do?',
+  'faq_a4': 'On the login screen, tap "Forgot Password" and enter your email. We\'ll send you a link to reset your password.',
+  'faq_q5': 'How do I change the app language?',
+  'faq_a5': 'Go to Settings > Language and choose Khmer, English, or Chinese. The app updates immediately.',
+  'faq_q6': 'Is my payment information secure?',
+  'faq_a6': 'Yes. All payments are processed through trusted, encrypted payment providers. We never store your card or payment details on our servers.',
+  'faq_q7': 'Can I get a refund?',
+  'faq_a7': 'Refund requests are reviewed case by case. Please contact our support team through Chat Support or Telegram within 7 days of payment.',
+  'faq_q8': 'How do I contact support?',
+  'faq_a8': 'Tap Settings > Chat Support to message our team directly in the app, or join our Telegram community for quick help.',
+
+  // Terms of Service
+  'terms_s1_title': 'Acceptance of Terms',
+  'terms_s1_body': 'By creating an account or using Luy Money, you agree to be bound by these Terms of Service. If you do not agree, please do not use the app.',
+  'terms_s2_title': 'Description of Service',
+  'terms_s2_body': 'Luy Money provides educational videos and articles about personal finance, investing, and money management through a subscription-based mobile application.',
+  'terms_s3_title': 'Subscriptions and Payments',
+  'terms_s3_body': 'Access to premium content requires an active paid subscription. Prices, durations, and available plans are shown in the app before purchase. Subscriptions do not renew automatically — you must manually renew before your access expires.',
+  'terms_s4_title': 'User Accounts',
+  'terms_s4_body': 'You are responsible for keeping your account credentials confidential and for all activity under your account. You must provide accurate information when registering.',
+  'terms_s5_title': 'Acceptable Use',
+  'terms_s5_body': 'You agree not to misuse the app, including attempting to access content without payment, sharing your account with others, or posting offensive, illegal, or misleading content in comments.',
+  'terms_s6_title': 'Intellectual Property',
+  'terms_s6_body': 'All videos, articles, graphics, and content within Luy Money are owned by Luy Money or its licensors and are protected by copyright law. You may not copy, redistribute, or resell this content.',
+  'terms_s7_title': 'Termination',
+  'terms_s7_body': 'We may suspend or terminate accounts that violate these Terms, including fraudulent payments or abusive behavior, without prior notice.',
+  'terms_s8_title': 'Disclaimer of Warranties',
+  'terms_s8_body': 'Content in Luy Money is for educational purposes only and does not constitute professional financial advice. We make no guarantees about investment outcomes or financial results.',
+  'terms_s9_title': 'Limitation of Liability',
+  'terms_s9_body': 'Luy Money is not liable for any financial losses, damages, or decisions made based on information provided in the app.',
+  'terms_s10_title': 'Changes to These Terms',
+  'terms_s10_body': 'We may update these Terms from time to time. Continued use of the app after changes means you accept the updated Terms.',
+  'terms_s11_title': 'Contact Us',
+  'terms_s11_body': 'If you have questions about these Terms, please contact us through Chat Support or our Telegram community in the app.',
 };

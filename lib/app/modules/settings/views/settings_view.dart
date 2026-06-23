@@ -178,14 +178,6 @@ class SettingsView extends GetView<SettingsController> {
                     ext: ext,
                     onTap: controller.navigateToSubscription,
                   ),
-                  _Divider(ext: ext),
-                  _Tile(
-                    icon: Icons.restore_rounded,
-                    iconColor: Colors.blueGrey,
-                    title: 'restore_purchase'.tr,
-                    ext: ext,
-                    onTap: () {},
-                  ),
                 ]),
                 const SizedBox(height: 20),
 
@@ -213,7 +205,7 @@ class SettingsView extends GetView<SettingsController> {
                     iconColor: Colors.indigo,
                     title: 'faq'.tr,
                     ext: ext,
-                    onTap: () => controller.openUrl(AppConfig.faqUrl),
+                    onTap: () => Get.toNamed(Routes.FAQ),
                   ),
                   _Divider(ext: ext),
                   _Tile(
@@ -242,7 +234,7 @@ class SettingsView extends GetView<SettingsController> {
                     iconColor: Colors.brown,
                     title: 'terms_of_service'.tr,
                     ext: ext,
-                    onTap: () => controller.openUrl(AppConfig.termsOfServiceUrl),
+                    onTap: () => Get.toNamed(Routes.TERMS),
                   ),
                   _Divider(ext: ext),
                   // App Version Row

@@ -101,7 +101,6 @@ const Map<String, String> zhCN = {
   'promotional_messages': '促销消息',
   'saved_videos': '已保存的视频',
   'manage_subscription': '管理订阅',
-  'restore_purchase': '恢复购买',
   'faq': '常见问题',
   'rate_app': '评分应用',
   'privacy_policy': '隐私政策',
@@ -166,8 +165,6 @@ const Map<String, String> zhCN = {
 
   // Auth extras
   'financial_freedom': '财务自由',
-  'or': '或',
-  'biometric_login': '生物识别登录',
   'create_account': '创建账户',
   'join_thousands_tagline': '加入数千人学习财务自由',
   'your_full_name': '您的全名',
@@ -388,4 +385,46 @@ const Map<String, String> zhCN = {
 
   // Notifications inbox
   'no_notifications_yet': '暂无通知',
+
+  // FAQ
+  'faq_q1': '如何订阅 Luy Money？',
+  'faq_a1': '进入"设置 > 管理订阅"，或点击任何已锁定的高级视频或文章。选择方案并完成付款，即可立即解锁所有内容。',
+  'faq_q2': '支持哪些付款方式？',
+  'faq_a2': '我们支持 ABA Pay、Wing Money、PayPal 以及主要信用卡。您可以在付款页面选择您喜欢的方式。',
+  'faq_q3': '如何管理或取消订阅？',
+  'faq_a3': '打开"设置 > 管理订阅"查看您的方案、续订日期和剩余天数。订阅不会自动续订——是否续订由您决定。',
+  'faq_q4': '忘记密码怎么办？',
+  'faq_a4': '在登录界面点击"忘记密码"，输入您的邮箱地址，我们会发送重置密码的链接给您。',
+  'faq_q5': '如何切换应用语言？',
+  'faq_a5': '进入"设置 > 语言"，选择高棉语、英语或中文，应用会立即更新。',
+  'faq_q6': '我的付款信息安全吗？',
+  'faq_a6': '是的。所有付款均通过受信任的加密支付服务商处理，我们不会在服务器上存储您的银行卡或付款信息。',
+  'faq_q7': '可以申请退款吗？',
+  'faq_a7': '退款申请将逐一审核。请在付款后7天内通过聊天支持或Telegram联系我们的客服团队。',
+  'faq_q8': '如何联系客服？',
+  'faq_a8': '点击"设置 > 聊天支持"直接在应用内联系我们的团队，或加入我们的Telegram社区获取快速帮助。',
+
+  // Terms of Service
+  'terms_s1_title': '条款的接受',
+  'terms_s1_body': '创建账户或使用 Luy Money 即表示您同意受本服务条款约束。如果您不同意，请不要使用本应用。',
+  'terms_s2_title': '服务说明',
+  'terms_s2_body': 'Luy Money 通过订阅制移动应用程序提供有关个人理财、投资和资金管理的教育视频和文章。',
+  'terms_s3_title': '订阅与付款',
+  'terms_s3_body': '访问高级内容需要有效的付费订阅。订阅价格、期限和可选方案会在购买前在应用内显示。订阅不会自动续订，您需要在到期前手动续订。',
+  'terms_s4_title': '用户账户',
+  'terms_s4_body': '您有责任对账户信息保密，并对账户下的所有活动负责。注册时您必须提供真实准确的信息。',
+  'terms_s5_title': '可接受的使用方式',
+  'terms_s5_body': '您同意不滥用本应用，包括尝试未付款访问内容、与他人共享账户，或在评论中发布不当、违法或误导性内容。',
+  'terms_s6_title': '知识产权',
+  'terms_s6_body': 'Luy Money 中的所有视频、文章、图像及内容均归 Luy Money 或其授权方所有，并受版权法保护。您不得复制、转发或转售这些内容。',
+  'terms_s7_title': '账户终止',
+  'terms_s7_body': '对于违反本条款的账户，包括欺诈性付款或不当行为，我们可能无需事先通知即暂停或终止该账户。',
+  'terms_s8_title': '免责声明',
+  'terms_s8_body': 'Luy Money 中的内容仅供教育用途，不构成专业财务建议。我们不对任何投资结果或财务表现作出保证。',
+  'terms_s9_title': '责任限制',
+  'terms_s9_body': 'Luy Money 不对因应用内信息而产生的任何财务损失、损害或决定承担责任。',
+  'terms_s10_title': '条款变更',
+  'terms_s10_body': '我们可能会不时更新本条款。条款变更后继续使用本应用，即表示您接受更新后的条款。',
+  'terms_s11_title': '联系我们',
+  'terms_s11_body': '如果您对本条款有任何疑问，请通过应用内的聊天支持或Telegram社区联系我们。',
 };

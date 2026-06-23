@@ -2,12 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/app_colors.dart';
 import '../themes/app_themes.dart';
 import '../../data/models/content_model.dart';
 import '../../routes/app_routes.dart';
 import '../../modules/content/controllers/content_controller.dart';
 import 'linkified_text.dart';
+
+Future<void> _openArticleLink(String linkUrl) async {
+  final link = linkUrl.trim();
+  if (link.isEmpty) return;
+  if (link.startsWith('/')) {
+    Get.toNamed(link);
+    return;
+  }
+  final uri = Uri.tryParse(link);
+  if (uri != null && await canLaunchUrl(uri)) {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+}
 
 class ArticleCard extends StatelessWidget {
   final ArticleModel article;
@@ -271,19 +285,23 @@ class ArticleCard extends StatelessWidget {
               ),
             ),
 
-          // Link indicator (bottom-right) when the post has an attached link
+          // Link indicator (bottom-right) — tappable, opens the link directly
+          // without triggering the card's navigate-to-detail tap.
           if (article.linkUrl.trim().isNotEmpty)
             Positioned(
               bottom: 10,
               right: 10,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.55),
-                  shape: BoxShape.circle,
+              child: GestureDetector(
+                onTap: () => _openArticleLink(article.linkUrl),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.55),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.open_in_new_rounded,
+                      color: Colors.white, size: 14),
                 ),
-                child: const Icon(Icons.open_in_new_rounded,
-                    color: Colors.white, size: 14),
               ),
             ),
         ],

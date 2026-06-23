@@ -206,38 +206,6 @@ class LoginView extends GetView<AuthController> {
                     )),
                 const SizedBox(height: 16),
 
-                // ── Divider ────────────────────────────────────────────────
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'or'.tr,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.4),
-                        ),
-                      ),
-                    ),
-                    const Expanded(child: Divider()),
-                  ],
-                ),
-                const SizedBox(height: 16),
-
-                // ── Biometric login ────────────────────────────────────────
-                OutlinedButton.icon(
-                  onPressed: controller.authenticateWithBiometric,
-                  icon: const Icon(Icons.fingerprint),
-                  label: Text('biometric_login'.tr),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 52),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-                const SizedBox(height: 32),
-
                 // ── Register link ──────────────────────────────────────────
                 Center(
                   child: Row(
